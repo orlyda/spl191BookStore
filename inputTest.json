@@ -1,0 +1,11 @@
+{
+  "name": "ass 2",
+  "version": "1.0.0",
+  "dependencies": {
+    
+  },
+  "initialInventory": [
+    {"bookTitle": "Harry Potter", "amount": 0, "price": 90},
+    {"bookTitle": "The Hunger Games", "amount": 90, "price": 102}
+  ]
+}
