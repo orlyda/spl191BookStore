@@ -1,40 +1,57 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import org.json.simple.parser.JSONParser;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import com.google.gson.*;
+import org.json.simple.*;
+
+import java.io.*;
+import java.nio.file.*;
+
 
 public class InventoryTest {
-
-    @Test
-    public void getInstance() {
-    }
-
-    @Test
-    public void load() {
-        BookInventoryInfo book;
-        JsonElement subObject;
-        JsonObject jObject=new JsonObject();
-        JsonObject inventoryObject = jObject.getAsJsonObject("initialInventory");
-        JsonArray arr=inventoryObject.getAsJsonArray();
-        BookInventoryInfo[] books=new BookInventoryInfo[arr.size()];
-        for(int i=0;i<arr.size();i++){
-            subObject=arr.get(i);
-            String title=subObject.getAsString();
+    public BookInventoryInfo[] getBooks() {
+        JSONParser parser = new JSONParser();
+        try {
+            Object obj = parser.parse(new FileReader("inputTest.json"));
+            JSONObject jsonObject = (JSONObject) obj;
+            JSONArray books = (JSONArray) jsonObject.get("initialInventory");
+            BookInventoryInfo[] myBooks = new BookInventoryInfo[books.size()];
+            for (int i = 0; i < myBooks.length; i++) {
+                JSONObject curr = (JSONObject) books.get(i);
+                String name = (String) curr.get("bookTitle");
+                long amount = (Long) curr.get("amount");
+                long price = (Long) curr.get("price");
+                myBooks[i] = new BookInventoryInfo(name, (int) amount, (int) price);
+            }
+            return myBooks;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
+
 
     @Test
     public void take() {
         Inventory test=new Inventory();
+        test.load(getBooks());
         assertEquals("The book is not in stock",OrderResult.NOT_IN_STOCK,test.take("Harry Potter"));
+        assertEquals("The book is in stock",OrderResult.SUCCESSFULLY_TAKEN,test.take("The Hunger Games"));
+
     }
 
     @Test
     public void checkAvailabiltyAndGetPrice() {
+        Inventory test=new Inventory();
+        test.load(getBooks());
+        assertEquals("The book is not in stock",-1,test.checkAvailabiltyAndGetPrice("Harry Potter"));
+        assertEquals("The book is in available",102,test.checkAvailabiltyAndGetPrice("The Hunger Games"));
+
     }
 
     @Test
     public void printInventoryToFile() {
+
     }
 }

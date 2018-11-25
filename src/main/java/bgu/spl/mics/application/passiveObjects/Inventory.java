@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
-
+import java.io.*;
+import java.util.HashMap;
 
 /**
  * Passive data-object representing the store inventory.
@@ -14,11 +15,15 @@ package bgu.spl.mics.application.passiveObjects;
  */
 public class Inventory {
 	private BookInventoryInfo[] booksInfo;
+	private static Inventory instance = null;
+	//private Inventory(){}
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		return new Inventory();
+		if(instance==null)
+			instance= new Inventory();
+        return instance;
 	}
 	
 	/**
@@ -75,6 +80,20 @@ public class Inventory {
      * This method is called by the main method in order to generate the output.
      */
 	public void printInventoryToFile(String filename){
-		//TODO: Implement this
+		HashMap<String,Integer> map=new HashMap<>();
+		for(int i=0;i<booksInfo.length;i++){
+			map.put(booksInfo[i].getBookTitle(),booksInfo[i].getAmountInInventory());
+		}
+		try {
+			FileOutputStream fileOut =
+					new FileOutputStream(filename);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(map);
+			out.close();
+			fileOut.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
 	}
+
 }

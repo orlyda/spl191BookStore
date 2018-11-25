@@ -11,7 +11,7 @@ public class BookInventoryInfo {
     private int amount;
     private int price;
 
-    BookInventoryInfo(String title,int amount,int price){
+   public BookInventoryInfo(String title,int amount,int price){
         this.title=title;
         this.amount=amount;
         this.price=price;
