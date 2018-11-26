@@ -1,6 +1,8 @@
-package bgu.spl.mics.application.passiveObjects;
-
+import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
+import bgu.spl.mics.application.passiveObjects.Inventory;
+import bgu.spl.mics.application.passiveObjects.OrderResult;
 import org.json.simple.parser.JSONParser;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.json.simple.*;
@@ -36,7 +38,7 @@ public class InventoryTest {
     public void take() {
         Inventory test=new Inventory();
         test.load(getBooks());
-        assertEquals("The book is not in stock",OrderResult.NOT_IN_STOCK,test.take("Harry Potter"));
+        Assert.assertEquals("The book is not in stock", OrderResult.NOT_IN_STOCK,test.take("Harry Potter"));
         assertEquals("The book is in stock",OrderResult.SUCCESSFULLY_TAKEN,test.take("The Hunger Games"));
 
     }

@@ -11,7 +11,8 @@ import org.json.simple.parser.JSONParser;
  */
 public class BookStoreRunner {
     public static void main(String[] args) {
-       /* JSONParser parser = new JSONParser();
+        /*
+        JSONParser parser = new JSONParser();
         try{
             Object obj = parser.parse(new FileReader("inputTest.json"));
             JSONObject jsonObject = (JSONObject) obj;
@@ -29,6 +30,6 @@ public class BookStoreRunner {
             }
         }catch (Exception e){
             e.printStackTrace();
-        }
-    }*/
-}}
+        }*/
+    }
+}
