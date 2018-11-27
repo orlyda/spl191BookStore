@@ -50,8 +50,4 @@ public class InventoryTest {
 
     }
 
-    @Test
-    public void printInventoryToFile() {
-
-    }
 }

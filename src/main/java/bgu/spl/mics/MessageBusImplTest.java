@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.services.SellingService;
+import bgu.spl.mics.example.messages.ExampleBroadcast;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ public class MessageBusImplTest {
 
     @Test
     public void sendBroadcast() {
+        Broadcast b  =new ExampleBroadcast("Orly");
     }
 
     @Test
