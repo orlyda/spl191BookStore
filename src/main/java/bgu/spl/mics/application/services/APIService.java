@@ -1,6 +1,11 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Broadcast;
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.FiftyPercentDiscount;
+
+import java.util.List;
 
 /**
  * APIService is in charge of the connection between a client and the store.
@@ -20,8 +25,9 @@ public class APIService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+		Broadcast b=new FiftyPercentDiscount();
+		Callback c;
+		this.subscribeBroadcast(b.getClass(),c);
 	}
 
 }

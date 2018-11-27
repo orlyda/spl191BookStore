@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.passiveObjects.Inventory;
 
 /**
  * InventoryService is in charge of the book inventory and stock.
@@ -13,10 +14,14 @@ import bgu.spl.mics.MicroService;
  */
 
 public class InventoryService extends MicroService{
+	Inventory inventory;
 
-	public InventoryService() {
-		super("Change_This_Name");
-		// TODO Implement this
+	public InventoryService(Inventory i) {
+		super("Inventory");
+		inventory=i;
+	}
+	public InventoryService(){
+		super("Inventory");
 	}
 
 	@Override

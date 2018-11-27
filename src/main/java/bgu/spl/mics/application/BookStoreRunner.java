@@ -11,10 +11,10 @@ import org.json.simple.parser.JSONParser;
  */
 public class BookStoreRunner {
     public static void main(String[] args) {
-        /*
+
         JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader("inputTest.json"));
+            Object obj = parser.parse(new FileReader("input.json"));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray books = (JSONArray)jsonObject.get("initialInventory");
             BookInventoryInfo[] myBooks = new BookInventoryInfo[books.size()];
@@ -30,6 +30,6 @@ public class BookStoreRunner {
             }
         }catch (Exception e){
             e.printStackTrace();
-        }*/
+        }
     }
 }
