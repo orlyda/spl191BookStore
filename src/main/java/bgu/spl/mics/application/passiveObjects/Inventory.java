@@ -15,15 +15,15 @@ import java.util.HashMap;
  */
 public class Inventory {
 	private BookInventoryInfo[] booksInfo;
-	private static Inventory instance = null;
-	//private Inventory(){}
+	private static Inventory instance =new Inventory();
+	private Inventory(){
+
+	}
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		if(instance==null)
-			instance= new Inventory();
-        return instance;
+        return Inventory.instance;
 	}
 	
 	/**
