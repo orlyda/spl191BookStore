@@ -49,7 +49,7 @@ public class FutureTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertTrue(a == null);
+        assertNull(a);
     }
     @Test
     public void get2(){

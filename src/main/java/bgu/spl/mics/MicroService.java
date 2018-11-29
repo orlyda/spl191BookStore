@@ -22,7 +22,7 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-
+    private MessageBus messageBus;
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
