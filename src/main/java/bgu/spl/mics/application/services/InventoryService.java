@@ -1,7 +1,8 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
-
+import bgu.spl.mics.application.passiveObjects.Inventory;
+import java.util.concurrent.atomic.*;
 /**
  * InventoryService is in charge of the book inventory and stock.
  * Holds a reference to the {@link Inventory} singleton of the store.
@@ -13,10 +14,14 @@ import bgu.spl.mics.MicroService;
  */
 
 public class InventoryService extends MicroService{
+	AtomicReference<Inventory> inventory;
 
-	public InventoryService() {
-		super("Change_This_Name");
-		// TODO Implement this
+	public InventoryService(Inventory i) {
+		super("Inventory");
+		inventory.getAndSet(i);
+	}
+	public InventoryService(){
+		super("Inventory");
 	}
 
 	@Override
