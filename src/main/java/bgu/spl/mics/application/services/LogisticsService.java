@@ -21,7 +21,9 @@ public class LogisticsService extends MicroService {
 	@Override
 	protected void initialize() {
 		// TODO Implement this
+
 		
 	}
+
 
 }
