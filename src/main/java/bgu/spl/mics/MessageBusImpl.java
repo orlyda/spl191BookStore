@@ -19,7 +19,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
+	public void subscribeBroadcast(Class <? extends Broadcast> type, MicroService m) {
         if(!BroadcastMap.get(type).contains(m))
             BroadcastMap.get(type).add(m);
 
