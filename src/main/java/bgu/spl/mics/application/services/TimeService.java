@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.services;
 
+
+import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -14,8 +16,8 @@ import bgu.spl.mics.MicroService;
  */
 public class TimeService extends MicroService{
 
-	public TimeService() {
-		super("Change_This_Name");
+	public TimeService(String name, MessageBus messageBus) {
+		super(name, messageBus);
 		// TODO Implement this
 	}
 
