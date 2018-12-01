@@ -6,7 +6,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.FiftyPercentDiscount;
 import bgu.spl.mics.application.passiveObjects.Customer;
 import bgu.spl.mics.application.passiveObjects.FutureOrder;
-
+import java.util.concurrent.atomic.*;
 import java.util.List;
 
 /**
@@ -23,10 +23,8 @@ public class APIService extends MicroService{
 	private List<FutureOrder> futureOrders;
 	private String name;
 
-
 	public APIService() {
 		super("APIService");
-		// TODO Implement this
 	}
 	public APIService(List<FutureOrder> orders,Customer c){
 		super("APIService");
@@ -36,9 +34,18 @@ public class APIService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		Broadcast b=new FiftyPercentDiscount();
+	/*	Broadcast b=new FiftyPercentDiscount();
 		Callback c;
 		//this.subscribeBroadcast(b.getClass(),c);
+*/
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public List<FutureOrder> getFutureOrders() {
+		return futureOrders;
 	}
 
 }

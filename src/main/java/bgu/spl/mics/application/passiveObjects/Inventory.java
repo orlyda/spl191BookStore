@@ -16,7 +16,7 @@ import java.util.HashMap;
 public class Inventory {
 	private BookInventoryInfo[] booksInfo;
 	private static Inventory instance =new Inventory();
-	private Inventory(){
+	public Inventory(){
 
 	}
 	/**
