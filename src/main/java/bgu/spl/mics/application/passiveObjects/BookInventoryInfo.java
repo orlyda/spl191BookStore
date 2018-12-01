@@ -50,7 +50,9 @@ public class BookInventoryInfo {
         }
 	    return false;
     }
-	
+	 public void setPrice(int price){
+		this.price=price;
+	 }
 	
 
 	

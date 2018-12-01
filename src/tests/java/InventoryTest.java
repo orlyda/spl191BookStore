@@ -38,7 +38,7 @@ public class InventoryTest {
 
     @Test
     public void take() {
-        Inventory test;
+        Inventory test=new Inventory();
         test.load(getBooks());
         Assert.assertEquals("The book is not in stock", OrderResult.NOT_IN_STOCK,test.take("Harry Potter"));
         assertEquals("The book is in stock",OrderResult.SUCCESSFULLY_TAKEN,test.take("The Hunger Games"));

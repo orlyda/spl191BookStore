@@ -34,10 +34,10 @@ public class APIService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		Broadcast b=new FiftyPercentDiscount();
-		Callback c=new C
+	/*	Broadcast b=new FiftyPercentDiscount();
+		Callback c;
 		//this.subscribeBroadcast(b.getClass(),c);
-		s
+*/
 	}
 
 	public Customer getCustomer() {
