@@ -28,6 +28,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		FutureMap.get(e).resolve(result);
+		FutureMap.remove(e);
 	}
 
 	@Override
