@@ -1,13 +1,12 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.Broadcast;
-import bgu.spl.mics.Callback;
-import bgu.spl.mics.MicroService;
+import bgu.spl.mics.*;
 import bgu.spl.mics.application.messages.FiftyPercentDiscount;
 import bgu.spl.mics.application.passiveObjects.Customer;
 import bgu.spl.mics.application.passiveObjects.FutureOrder;
+
+import java.util.*;
 import java.util.concurrent.atomic.*;
-import java.util.List;
 
 /**
  * APIService is in charge of the connection between a client and the store.
@@ -18,26 +17,37 @@ import java.util.List;
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
-public class APIService extends MicroService{
-	private Customer customer;
-	private List<FutureOrder> futureOrders;
-	private String name;
+public class APIService extends MicroService {
+	private final Customer customer;
+	private ArrayList<FutureOrder> futureOrders;
 
-	public APIService() {
-		super("APIService");
-	}
-	public APIService(List<FutureOrder> orders,Customer c){
-		super("APIService");
+	public APIService(MessageBus m, ArrayList<FutureOrder> orders, Customer c){
+		super("APIService",m);
 		customer=c;
 		futureOrders=orders;
+		Comparator<FutureOrder> comparator= (futureOrder, t1) ->
+				Integer.compare(t1.getTick(), futureOrder.getTick());
+		futureOrders.sort(comparator);
 	}
 
 	@Override
 	protected void initialize() {
-	/*	Broadcast b=new FiftyPercentDiscount();
-		Callback c;
-		//this.subscribeBroadcast(b.getClass(),c);
-*/
+		Callback<FiftyPercentDiscount> callback=new Callback<FiftyPercentDiscount>() {
+			@Override
+			public void call(FiftyPercentDiscount c) {
+				Iterator<String>iterator=c.getBooksInDiscount().iterator();
+				while(iterator.hasNext()){
+					for(int i=0;i<futureOrders.size();i++){
+						//if(iterator.equals(futureOrders.get(i).getBookTitle()))
+						{
+
+						}
+					}
+				}
+			}
+		};
+		this.subscribeBroadcast(FiftyPercentDiscount.class,callback);
+
 	}
 
 	public Customer getCustomer() {
