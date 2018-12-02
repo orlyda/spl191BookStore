@@ -22,7 +22,7 @@ import java.util.TimerTask;
  */
 public class TimeService extends MicroService {
 	private Timer timer;
-	volatile int speed,time,duration;
+	private volatile int speed,time,duration;
 	public TimeService(String name, MessageBus messageBus , int speed) {
 		super(name, messageBus);
 		this.speed = speed;
