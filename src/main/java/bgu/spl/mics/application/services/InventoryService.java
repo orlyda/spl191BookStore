@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
+import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 
 import java.util.HashMap;
@@ -26,6 +27,9 @@ public class InventoryService extends MicroService{
 
 	@Override
 	protected void initialize() {
-	}
+		Callback<CheckAvailabilityEvent> checkCallback= c -> {
+		//	inventory.get().take()
+		};
+	}//need to creat another event which check that the costumer have money,and then to take and complete.
 
 }
