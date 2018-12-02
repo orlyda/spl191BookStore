@@ -8,10 +8,17 @@ import java.util.*;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
+    private static MessageBus instance = null;
     private HashMap<MicroService,Queue<Message>> ServiceMap = new HashMap<>();
     private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap = new HashMap<>();
     private HashMap<Class<? extends Message> , Queue<MicroService>> EventMap = new HashMap<>();
     private HashMap<Event,Future> FutureMap = new HashMap<>();
+    public static MessageBus getInstance(){
+        if(instance == null)
+            instance = new MessageBusImpl();
+        return instance;
+    }
+
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
         if(!EventMap.get(type).contains(m))
