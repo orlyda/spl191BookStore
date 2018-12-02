@@ -31,6 +31,9 @@ public abstract class MicroService implements Runnable {
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
      */
+
+    public MicroService(String name){this.name=name;}
+
     public MicroService(String name, MessageBus messageBus) {
         this.name = name;
         this.messageBus=messageBus;
@@ -159,8 +162,10 @@ public abstract class MicroService implements Runnable {
         initialize();
         while (!terminated) {
             try {
-                Message message = messageBus.awaitMessage(this);
-                callbackMap.get(message).call(message);
+                if(!callbackMap.isEmpty()) {
+                    Message message = messageBus.awaitMessage(this);
+                    callbackMap.get(message).call(message);
+                }
             }
             catch (InterruptedException e){}
         }
