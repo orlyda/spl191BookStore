@@ -1,7 +1,10 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.MicroService;
+import bgu.spl.mics.*;
+import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.passiveObjects.Inventory;
+
+import java.util.HashMap;
 import java.util.concurrent.atomic.*;
 /**
  * InventoryService is in charge of the book inventory and stock.
@@ -14,18 +17,19 @@ import java.util.concurrent.atomic.*;
  */
 
 public class InventoryService extends MicroService{
-	AtomicReference<Inventory> inventory;
+	public AtomicReference<Inventory> inventory;
 
-	public InventoryService(Inventory i) {
-		super("Inventory");
+
+	public InventoryService(Inventory i, MessageBus bus) {
+		super("Inventory",bus);
 		inventory.getAndSet(i);
-	}
-	public InventoryService(){
-		super("Inventory");
 	}
 
 	@Override
 	protected void initialize() {
-	}
+		Callback<CheckAvailabilityEvent> checkCallback= c -> {
+		//	inventory.get().take()
+		};
+	}//need to creat another event which check that the costumer have money,and then to take and complete.
 
 }

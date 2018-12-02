@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
+import java.util.List;
 
 /**
  * Passive object representing the store finance management. 
@@ -12,6 +13,7 @@ package bgu.spl.mics.application.passiveObjects;
  * You can add ONLY private fields and methods to this class as you see fit.
  */
 public class MoneyRegister {
+	private List<OrderReceipt> receiptList;
 	
 	/**
      * Retrieves the single instance of this class.
