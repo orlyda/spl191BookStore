@@ -2,8 +2,11 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.messages.FiftyPercentDiscount;
+import bgu.spl.mics.application.messages.OrderBookEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.Customer;
 import bgu.spl.mics.application.passiveObjects.FutureOrder;
+import bgu.spl.mics.application.passiveObjects.OrderReceipt;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -32,22 +35,17 @@ public class APIService extends MicroService {
 
 	@Override
 	protected void initialize() {
-		Callback<FiftyPercentDiscount> callback=new Callback<FiftyPercentDiscount>() {
-			@Override
-			public void call(FiftyPercentDiscount c) {
-				Iterator<String>iterator=c.getBooksInDiscount().iterator();
-				while(iterator.hasNext()){
-					for(int i=0;i<futureOrders.size();i++){
-						//if(iterator.equals(futureOrders.get(i).getBookTitle()))
-						{
-
-						}
-					}
-				}
-			}
+		Callback<TickBroadcast> tickCallback= t -> {
+			int i=0;
+			//synchronized (futureOrders){
+			while(!futureOrders.isEmpty() && futureOrders.get(i).getTick()==t.getTick()) {
+				Future<OrderReceipt> orderFuture =
+						this.sendEvent(new OrderBookEvent(customer, futureOrders.get(i).getBookTitle()));
+				futureOrders.remove(i);
+				i++;
+			}//}
 		};
-		this.subscribeBroadcast(FiftyPercentDiscount.class,callback);
-
+		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
 	}
 
 	public Customer getCustomer() {

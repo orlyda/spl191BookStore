@@ -20,16 +20,18 @@ public class InventoryService extends MicroService{
 	public AtomicReference<Inventory> inventory;
 
 
-	public InventoryService(Inventory i) {
+	public InventoryService() {
 		super("Inventory");
-		inventory.getAndSet(i);
+		inventory.set(Inventory.getInstance());
 	}
 
 	@Override
 	protected void initialize() {
 		Callback<CheckAvailabilityEvent> checkCallback= c -> {
-		//	inventory.get().take()
+			int price=inventory.get().checkAvailabiltyAndGetPrice(c.getBookTitle());
+
 		};
+		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
 	}//need to creat another event which check that the costumer have money,and then to take and complete.
 
 }

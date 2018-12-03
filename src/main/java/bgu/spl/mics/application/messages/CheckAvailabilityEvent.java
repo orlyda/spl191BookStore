@@ -10,4 +10,8 @@ public class CheckAvailabilityEvent implements Event<OrderReceipt> {
     public CheckAvailabilityEvent(String book){
         bookTitle=book;
     }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
 }

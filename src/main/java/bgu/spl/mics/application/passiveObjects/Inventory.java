@@ -2,6 +2,8 @@ package bgu.spl.mics.application.passiveObjects;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Passive data-object representing the store inventory.
@@ -14,16 +16,16 @@ import java.util.HashMap;
  * You can add ONLY private fields and methods to this class as you see fit.
  */
 public class Inventory {
-	private BookInventoryInfo[] booksInfo;
-	private static Inventory instance =new Inventory();
-	public Inventory(){
-
-	}
+	private AtomicReferenceArray<BookInventoryInfo> booksInfo;
+	private static Inventory instance =null;
+	private Inventory(){}
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-        return Inventory.instance;
+        if (instance==null)
+        	instance=new Inventory();
+        return instance;
 	}
 	
 	/**
@@ -34,9 +36,9 @@ public class Inventory {
      * 						of the inventory.
      */
 	public void load (BookInventoryInfo[ ] inventory ) {
-		booksInfo=new BookInventoryInfo[inventory.length];
+		booksInfo=new AtomicReferenceArray<BookInventoryInfo>(inventory.length);
 		for (int i=0;i<inventory.length;i++)
-			booksInfo[i]=inventory[i];
+			booksInfo.getAndSet(i,inventory[i]);
 	}
 	
 	/**
@@ -48,8 +50,8 @@ public class Inventory {
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		for (BookInventoryInfo i:booksInfo){
-			if(i.getBookTitle().equals(book) &&i.decreaseAmount())
+		for (int i=0;i<=booksInfo.length();i++){
+			if(booksInfo.get(i).getBookTitle().equals(book) &&booksInfo.get(i).decreaseAmount())
 				return OrderResult.SUCCESSFULLY_TAKEN;
 		}
 		return OrderResult.NOT_IN_STOCK;
@@ -64,9 +66,9 @@ public class Inventory {
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
-		for (BookInventoryInfo i:booksInfo) {
-			if(i.getBookTitle().equals(book)&&i.getAmountInInventory()>0)
-				return i.getPrice();
+		for (int i=0;i<=booksInfo.length();i++){
+			if(booksInfo.get(i).getBookTitle().equals(book)&&booksInfo.get(i).getAmountInInventory()>0)
+				return booksInfo.get(i).getPrice();
 		}
 		return -1;
 	}
@@ -81,8 +83,8 @@ public class Inventory {
      */
 	public void printInventoryToFile(String filename){
 		HashMap<String,Integer> map=new HashMap<>();
-		for(int i=0;i<booksInfo.length;i++){
-			map.put(booksInfo[i].getBookTitle(),booksInfo[i].getAmountInInventory());
+		for(int i=0;i<booksInfo.length();i++){
+			map.put(booksInfo.get(i).getBookTitle(),booksInfo.get(i).getAmountInInventory());
 		}
 		try {
 			FileOutputStream fileOut =

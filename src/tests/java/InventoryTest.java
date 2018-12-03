@@ -38,7 +38,7 @@ public class InventoryTest {
 
     @Test
     public void take() {
-        Inventory test=new Inventory();
+        Inventory test=Inventory.getInstance();
         test.load(getBooks());
         Assert.assertEquals("The book is not in stock", OrderResult.NOT_IN_STOCK,test.take("Harry Potter"));
         assertEquals("The book is in stock",OrderResult.SUCCESSFULLY_TAKEN,test.take("The Hunger Games"));
@@ -47,7 +47,7 @@ public class InventoryTest {
 
     @Test
     public void checkAvailabiltyAndGetPrice() {
-        Inventory test=new Inventory();
+        Inventory test=Inventory.getInstance();
         test.load(getBooks());
         assertEquals("The book is not in stock",-1,test.checkAvailabiltyAndGetPrice("Harry Potter"));
         assertEquals("The book is in available",102,test.checkAvailabiltyAndGetPrice("The Hunger Games"));
