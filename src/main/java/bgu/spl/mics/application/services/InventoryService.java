@@ -20,8 +20,8 @@ public class InventoryService extends MicroService{
 	public AtomicReference<Inventory> inventory;
 
 
-	public InventoryService(Inventory i, MessageBus bus) {
-		super("Inventory",bus);
+	public InventoryService(Inventory i) {
+		super("Inventory");
 		inventory.getAndSet(i);
 	}
 

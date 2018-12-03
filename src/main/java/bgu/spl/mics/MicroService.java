@@ -32,11 +32,9 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
 
-    public MicroService(String name){this.name=name;}
-
-    public MicroService(String name, MessageBus messageBus) {
-        this.name = name;
-        this.messageBus=messageBus;
+    public MicroService(String name){
+        this.name=name;
+        messageBus = MessageBusImpl.getInstance();
     }
 
     /**

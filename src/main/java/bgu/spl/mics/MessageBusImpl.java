@@ -9,16 +9,21 @@ import java.util.*;
  */
 public class MessageBusImpl implements MessageBus {
     private static MessageBus instance = null;
-    private HashMap<MicroService,Queue<Message>> ServiceMap = new HashMap<>();
-    private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap = new HashMap<>();
-    private HashMap<Class<? extends Message> , Queue<MicroService>> EventMap = new HashMap<>();
-    private HashMap<Event,Future> FutureMap = new HashMap<>();
+    private HashMap<MicroService,Queue<Message>> ServiceMap;
+    private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap;
+    private HashMap<Class<? extends Message> , Queue<MicroService>> EventMap;
+    private HashMap<Event,Future> FutureMap;
     public static MessageBus getInstance(){
         if(instance == null)
             instance = new MessageBusImpl();
         return instance;
     }
-
+	private MessageBusImpl(){
+		ServiceMap = new HashMap<>();
+		BroadcastMap = new HashMap<>();
+		EventMap = new HashMap<>();
+		FutureMap = new HashMap<>();
+	}
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
         if(!EventMap.get(type).contains(m))

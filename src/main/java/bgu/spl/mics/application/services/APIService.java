@@ -21,8 +21,8 @@ public class APIService extends MicroService {
 	private final Customer customer;
 	private ArrayList<FutureOrder> futureOrders;
 
-	public APIService(MessageBus m, ArrayList<FutureOrder> orders, Customer c){
-		super("APIService",m);
+	public APIService( ArrayList<FutureOrder> orders, Customer c){
+		super("APIService");
 		customer=c;
 		futureOrders=orders;
 		Comparator<FutureOrder> comparator= (futureOrder, t1) ->

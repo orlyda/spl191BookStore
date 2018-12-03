@@ -25,8 +25,8 @@ public class TimeService extends MicroService {
 	private Timer timer;
 	private volatile int speed,duration;
 	private AtomicInteger time;
-	public TimeService(String name, MessageBus messageBus , int speed,int duration) {
-		super(name, messageBus);
+	public TimeService(String name, int speed,int duration) {
+		super(name);
 		this.speed = speed;
 		this.duration=duration;
 	}

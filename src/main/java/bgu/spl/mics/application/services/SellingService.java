@@ -28,8 +28,8 @@ public class SellingService extends MicroService{
 
 	private AtomicReference<MoneyRegister> mr;
 
-	public SellingService(String name, AtomicReference<MoneyRegister> mr, MessageBus m) {
-		super(name,m);
+	public SellingService(String name, AtomicReference<MoneyRegister> mr) {
+		super(name);
 		this.mr = mr;
 	}
 
