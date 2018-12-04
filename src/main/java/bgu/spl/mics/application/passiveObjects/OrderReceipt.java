@@ -18,17 +18,24 @@ public class OrderReceipt {
 	private int processTick;
 
 	public OrderReceipt(int orderId,String s,int customerId,
-						String bookTitle,int price,int issuedTick,int orderTick,int processTick){
+						String bookTitle,int orderTick,int processTick){
 
 		this.bookTitle=bookTitle;
 		this.customerId=customerId;
-		this.issuedTick=issuedTick;
 		this.orderId=orderId;
-		this.price=price;
 		this.orderTick=orderTick;
 		this.processTick=processTick;
 		this.seller=s;
 	}
+
+	public void setIssuedTick(int issuedTick) {
+		this.issuedTick = issuedTick;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
 	/**
      * Retrieves the orderId of this receipt.
      */

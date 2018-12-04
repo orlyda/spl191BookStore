@@ -2,7 +2,10 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
+import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
 import bgu.spl.mics.application.passiveObjects.Inventory;
+import bgu.spl.mics.application.passiveObjects.MoneyStatus;
+import bgu.spl.mics.application.passiveObjects.OrderResult;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.*;
@@ -28,7 +31,26 @@ public class InventoryService extends MicroService{
 	@Override
 	protected void initialize() {
 		Callback<CheckAvailabilityEvent> checkCallback= c -> {
-			int price=inventory.get().checkAvailabiltyAndGetPrice(c.getBookTitle());
+			int price=inventory.get().checkAvailabiltyAndGetPrice(c.getBookTitle()); //the book price
+			if(price!=-1){//the book is available
+				CheckEnoughMoneyEvent moneyEvent=new CheckEnoughMoneyEvent(price);
+				Future<MoneyStatus> moneyStatusFuture=sendEvent(moneyEvent);
+				while (!moneyStatusFuture.isDone())
+				{
+					try {
+						wait();
+					}
+					catch (InterruptedException e){}
+				}
+				if (moneyStatusFuture.get().isEnoughMoney())
+					//the book available and there is enough money
+					complete(c,moneyStatusFuture.get());
+
+			}
+			else{//the book is not in stock
+				complete(c, new MoneyStatus(price,false));
+			}
+
 
 		};
 		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
