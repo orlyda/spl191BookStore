@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import bgu.spl.mics.Future;
+
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Passive data-object representing a customer of the store.
@@ -9,6 +12,15 @@ import java.util.List;
  * You may add fields and methods to this class as you see fit (including public methods).
  */
 public class Customer {
+	AtomicReference<List<Future>> futureOrders;
+
+	public AtomicReference<List<Future>> getFutureOrders() {
+		return futureOrders;
+	}
+
+	public void addFutureOrders(Future<OrderReceipt> future) {
+		this.futureOrders.get().add(future);
+	}
 
 	/**
      * Retrieves the name of the customer.

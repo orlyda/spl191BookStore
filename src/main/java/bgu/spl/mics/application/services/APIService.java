@@ -1,12 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
-import bgu.spl.mics.application.messages.FiftyPercentDiscount;
+import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
 import bgu.spl.mics.application.messages.OrderBookEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
-import bgu.spl.mics.application.passiveObjects.Customer;
-import bgu.spl.mics.application.passiveObjects.FutureOrder;
-import bgu.spl.mics.application.passiveObjects.OrderReceipt;
+import bgu.spl.mics.application.passiveObjects.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -36,17 +34,29 @@ public class APIService extends MicroService {
 	@Override
 	protected void initialize() {
 		Callback<TickBroadcast> tickCallback= t -> {
-			int i=0;
-			//synchronized (futureOrders){
-			while(!futureOrders.isEmpty() && futureOrders.get(i).getTick()==t.getTick()) {
+			AtomicInteger i= new AtomicInteger();
+			synchronized (futureOrders){
+			while(!futureOrders.isEmpty() && futureOrders.get(i.get()).getTick()==t.getTick()) {
 				Future<OrderReceipt> orderFuture =
-						this.sendEvent(new OrderBookEvent(customer, futureOrders.get(i).getBookTitle()));
-				futureOrders.remove(i);
-				i++;
-			}//}
+						this.sendEvent(new OrderBookEvent(customer, futureOrders.get(i.get()).getBookTitle(),
+								futureOrders.get(i.get()).getTick()));
+				futureOrders.remove(i.getAndIncrement());
+				customer.addFutureOrders(orderFuture);
+			}}
+
 		};
 		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
+		this.subscribeEvent(CheckEnoughMoneyEvent.class, c -> {
+			MoneyStatus status;
+			if (customer.getAvailableCreditAmount()>=c.getPrice()) {
+				status=new MoneyStatus(c.getPrice(),true);
+			}
+			else
+				status=new MoneyStatus(c.getPrice(),false);
+			complete(c,status);
+		});
 	}
+
 
 	public Customer getCustomer() {
 		return customer;
