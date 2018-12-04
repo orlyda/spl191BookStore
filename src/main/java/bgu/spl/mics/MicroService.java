@@ -26,7 +26,7 @@ public abstract class MicroService implements Runnable {
     private final String name;
     private MessageBus messageBus;
     private HashMap<Class<? extends Message>,Callback> callbackMap;
-    private Future result;
+    private HashMap<Event,Future> result;
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
@@ -35,6 +35,7 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name){
         this.name=name;
         messageBus = MessageBusImpl.getInstance();
+        result = new HashMap<>();
     }
 
     /**
@@ -101,8 +102,8 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        this.result = messageBus.sendEvent(e);
-        return this.result;
+        this.result.put(e,messageBus.sendEvent(e));
+        return this.result.get(e);
     }
 
     /**
