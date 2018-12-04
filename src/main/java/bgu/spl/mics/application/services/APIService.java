@@ -35,13 +35,15 @@ public class APIService extends MicroService {
 	protected void initialize() {
 		Callback<TickBroadcast> tickCallback= t -> {
 			AtomicInteger i= new AtomicInteger();
+			synchronized (futureOrders){
 			while(!futureOrders.isEmpty() && futureOrders.get(i.get()).getTick()==t.getTick()) {
 				Future<OrderReceipt> orderFuture =
 						this.sendEvent(new OrderBookEvent(customer, futureOrders.get(i.get()).getBookTitle(),
 								futureOrders.get(i.get()).getTick()));
-				futureOrders.remove(i.get());
-				i.getAndIncrement();
-			}
+				futureOrders.remove(i.getAndIncrement());
+				customer.addFutureOrders(orderFuture);
+			}}
+
 		};
 		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
 		this.subscribeEvent(CheckEnoughMoneyEvent.class, c -> {

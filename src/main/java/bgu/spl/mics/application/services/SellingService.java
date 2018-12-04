@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class SellingService extends MicroService{
 
-	private MoneyRegister mr;
+	private AtomicReference<MoneyRegister> mr;
 	private int currentTick;//use to create order receipt
 
 	public SellingService(String name) {
 		super(name);
-		this.mr =MoneyRegister.getInstance();
+		this.mr.set(MoneyRegister.getInstance());
 	}
 
 	@Override
@@ -51,9 +51,10 @@ public class SellingService extends MicroService{
 				catch (InterruptedException e){}
 			}
 			if(futureStatus.get().isEnoughMoney()){
-				mr.chargeCreditCard(o.getCustomer(),futureStatus.get().getBookPrice());
+				mr.get().chargeCreditCard(o.getCustomer(),futureStatus.get().getBookPrice());
 				receipt.setPrice(futureStatus.get().getBookPrice());
 				receipt.setIssuedTick(currentTick);
+				mr.get().file(receipt);
 				complete(o,receipt);
 			}
 			else {
