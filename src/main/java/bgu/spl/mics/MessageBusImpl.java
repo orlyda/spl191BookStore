@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -11,7 +12,7 @@ public class MessageBusImpl implements MessageBus {
     private static MessageBus instance = null;
     private HashMap<MicroService,Queue<Message>> ServiceMap;
     private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap;
-    private HashMap<Class<? extends Message> , Queue<MicroService>> EventMap;
+    private HashMap<Class<? extends Message> ,BlockingDeque<MicroService>> EventMap;
     private HashMap<Event,Future> FutureMap;
     public static MessageBus getInstance(){
         if(instance == null)
@@ -77,9 +78,9 @@ public class MessageBusImpl implements MessageBus {
         if (!ServiceMap.containsKey(m))
             throw new IllegalStateException();
         try {
-            wait();
+        	while (this.ServiceMap.isEmpty())
+            	wait();
         } catch (InterruptedException e) {
-            if (!ServiceMap.containsKey(m))
                 throw new InterruptedException();
         }
 
