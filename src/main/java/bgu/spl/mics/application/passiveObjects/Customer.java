@@ -12,15 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * You may add fields and methods to this class as you see fit (including public methods).
  */
 public class Customer {
-	AtomicReference<List<Future>> futureOrders;
 
-	public AtomicReference<List<Future>> getFutureOrders() {
-		return futureOrders;
-	}
-
-	public void addFutureOrders(Future<OrderReceipt> future) {
-		this.futureOrders.get().add(future);
-	}
 
 	/**
      * Retrieves the name of the customer.

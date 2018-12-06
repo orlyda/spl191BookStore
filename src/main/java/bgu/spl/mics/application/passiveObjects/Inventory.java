@@ -2,7 +2,6 @@ package bgu.spl.mics.application.passiveObjects;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
@@ -17,15 +16,16 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  */
 public class Inventory {
 	private AtomicReferenceArray<BookInventoryInfo> booksInfo;
-	private static Inventory instance =null;
 	private Inventory(){}
+
+	private static class InventorySingleton {
+		private static Inventory instance=new Inventory();
+	}
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-        if (instance==null)
-        	instance=new Inventory();
-        return instance;
+        return InventorySingleton.instance;
 	}
 	
 	/**

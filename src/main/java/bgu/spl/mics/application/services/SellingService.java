@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
+@SuppressWarnings("ALL")
 public class SellingService extends MicroService{
 
 	private AtomicReference<MoneyRegister> mr;
@@ -34,9 +35,7 @@ public class SellingService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		this.subscribeBroadcast(TickBroadcast.class, c -> {
-			currentTick=c.getTick();
-		});
+		this.subscribeBroadcast(TickBroadcast.class, c -> currentTick=c.getTick());
 
 		Callback<OrderBookEvent> orderBookEventCallback= o -> {
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
@@ -44,11 +43,12 @@ public class SellingService extends MicroService{
 
 			CheckAvailabilityEvent event=new CheckAvailabilityEvent(o.getBookTitle());
 			Future<MoneyStatus> futureStatus= sendEvent(event);
-			while (!futureStatus.isDone()){
-				try {
-					wait();
+			synchronized (futureStatus) {
+				while (!futureStatus.isDone()) {
+					try {
+						futureStatus.wait();
+					} catch (InterruptedException e) {}
 				}
-				catch (InterruptedException e){}
 			}
 			if(futureStatus.get().isEnoughMoney()){
 				mr.get().chargeCreditCard(o.getCustomer(),futureStatus.get().getBookPrice());

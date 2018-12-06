@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.*;
  * You MAY change constructor signatures and even add new public constructors.
  */
 
+@SuppressWarnings("ALL")
 public class InventoryService extends MicroService{
 	public AtomicReference<Inventory> inventory;
 
@@ -35,16 +36,17 @@ public class InventoryService extends MicroService{
 			if(price!=-1){//the book is available
 				CheckEnoughMoneyEvent moneyEvent=new CheckEnoughMoneyEvent(price);
 				Future<MoneyStatus> moneyStatusFuture=sendEvent(moneyEvent);
-				while (!moneyStatusFuture.isDone())
-				{
-					try {
-						wait();
+				synchronized (moneyStatusFuture) {
+					while (!moneyStatusFuture.isDone()) {
+						try {
+							moneyStatusFuture.wait();
+						} catch (InterruptedException e) {}
 					}
-					catch (InterruptedException e){}
 				}
 				if (moneyStatusFuture.get().isEnoughMoney())
 					//the book available and there is enough money
 					complete(c,moneyStatusFuture.get());
+				else complete(c,new MoneyStatus(price,false));
 
 			}
 			else{//the book is not in stock
