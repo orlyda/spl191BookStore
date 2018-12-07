@@ -52,10 +52,7 @@ public class InventoryService extends MicroService{
 			else{//the book is not in stock
 				complete(c, new MoneyStatus(price,false));
 			}
-
-
 		};
 		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
 	}//need to creat another event which check that the costumer have money,and then to take and complete.
-
 }
