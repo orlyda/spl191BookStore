@@ -2,6 +2,8 @@ package bgu.spl.mics.application.passiveObjects;
 
 import org.json.simple.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Passive data-object representing a receipt that should 
  * be sent to a customer after the completion of a BookOrderEvent.
@@ -9,7 +11,7 @@ import org.json.simple.JSONObject;
  * <p>
  * You may add fields and methods to this class as you see fit (including public methods).
  */
-public class OrderReceipt {
+public class OrderReceipt implements Serializable{
 	private int orderId;
 	private String seller;
 	private int customerId;
@@ -80,15 +82,5 @@ public class OrderReceipt {
      * processing the order.
      */
 	public int getProcessTick() {return processTick;}
-	public JSONObject toJSon(){
-		JSONObject obj = new JSONObject();
-		obj.put("order id", orderId);
-		obj.put("seller", seller);
-		obj.put("customer id",customerId);
-		obj.put("book title",bookTitle);
-		obj.put("price", price);
-		obj.put("issued tick",issuedTick);
-		obj.put("order tick", orderTick);
-		return obj;
-	}
+
 }

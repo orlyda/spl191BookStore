@@ -1,11 +1,12 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+
 import java.io.IOException;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class MoneyRegister {
+public class MoneyRegister implements Serializable {
 	private List<OrderReceipt> receiptList;
 	
 	/**
@@ -60,21 +61,28 @@ public class MoneyRegister {
      * This method is called by the main method in order to generate the output.. 
      */
 	public void printOrderReceipts(String filename) {
-		JSONObject obj = new JSONObject();
-		JSONArray orderArr = new JSONArray();
-		for (OrderReceipt r:receiptList) {
-			orderArr.add(r.toJSon());
-		}
-		obj.put("receipts",orderArr);
 		try {
-
-			FileWriter file = new FileWriter(filename);
-			file.write(obj.toJSONString());
-			file.flush();
-			file.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
+			FileOutputStream fileOut =
+					new FileOutputStream(filename);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(receiptList);
+			out.close();
+			fileOut.close();
+		} catch (IOException i) {
+			i.printStackTrace();
 		}
 	}
+	public void printMoneyRegister(String filename){
+		try {
+			FileOutputStream fileOut =
+					new FileOutputStream(filename);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(this);
+			out.close();
+			fileOut.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+
 }

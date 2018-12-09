@@ -5,6 +5,7 @@ import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
 import java.util.Timer;
@@ -43,6 +44,8 @@ public class TimeService extends MicroService {
                 sendBroadcast(new TickBroadcast(time.get()));
                 time.getAndIncrement();
             }
+            else if(time.get()==duration)
+            	sendBroadcast(new TerminateBroadcast());
 	    }
     }
 }

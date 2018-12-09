@@ -1,5 +1,10 @@
 package bgu.spl.mics.application;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import bgu.spl.mics.application.passiveObjects.Customer;
 import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
@@ -125,6 +130,22 @@ public class BookStoreRunner {
             }
         }
         return Customers;
+    }
+    public void printCustomers (String filename, Customer[] arr){
+        HashMap<Integer,Customer> map = new HashMap<>();
+        for(int i = 0; i<arr.length;i++){
+            map.put(arr[i].getId(),arr[i]);
+        }
+        try {
+            FileOutputStream fileOut =
+                    new FileOutputStream(filename);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(map);
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
     }
 
 }
