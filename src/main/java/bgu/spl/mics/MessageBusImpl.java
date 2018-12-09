@@ -14,6 +14,8 @@ public class MessageBusImpl implements MessageBus {
     private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap;
     private HashMap<Class<? extends Message> ,BlockingDeque<MicroService>> EventMap;
     private HashMap<Event,Future> FutureMap;
+    private HashMap<MicroService,List<Class<? extends Event>>> EventSubscribe;
+	private HashMap<MicroService,List<Class<? extends Broadcast>>> BroadSubscribe;
     public static MessageBus getInstance(){
         if(instance == null)
             instance = new MessageBusImpl();
@@ -27,15 +29,18 @@ public class MessageBusImpl implements MessageBus {
 	}
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-        if(!EventMap.get(type).contains(m))
-            EventMap.get(type).add(m);
+        if(!EventMap.get(type).contains(m)) {
+			EventMap.get(type).add(m);
+			EventSubscribe.get(m).add(type);
+		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class <? extends Broadcast> type, MicroService m) {
-        if(!BroadcastMap.get(type).contains(m))
-            BroadcastMap.get(type).add(m);
-
+        if(!BroadcastMap.get(type).contains(m)) {
+			BroadcastMap.get(type).add(m);
+			BroadSubscribe.get(m).add(type);
+		}
 	}
 
 	@Override
@@ -64,13 +69,24 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-	    if(!ServiceMap.containsKey(m))
-	        ServiceMap.put(m, new LinkedList<>());
+	    if(!ServiceMap.containsKey(m)) {
+			ServiceMap.put(m, new LinkedList<>());
+			EventSubscribe.put(m, new LinkedList());
+			BroadSubscribe.put(m, new LinkedList());
+		}
 	}
 
 	@Override
 	public void unregister(MicroService m){
 	        ServiceMap.remove(m);
+	        for(Class<? extends Event> c : EventSubscribe.get(m)){
+	        	EventMap.get(c).remove(m);
+	        }
+		    for(Class<? extends Broadcast> c : BroadSubscribe.get(m)){
+		    	BroadcastMap.get(c).remove(m);
+		    }
+		    EventSubscribe.remove(m);
+		    BroadSubscribe.remove(m);
     }
 
 	@Override
@@ -83,7 +99,6 @@ public class MessageBusImpl implements MessageBus {
         } catch (InterruptedException e) {
                 throw new InterruptedException();
         }
-
 		return ServiceMap.get(m).remove();
 	}
 

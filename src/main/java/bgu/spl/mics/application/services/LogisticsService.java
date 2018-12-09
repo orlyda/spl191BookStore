@@ -1,7 +1,11 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
+import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeliveryEvent;
+import bgu.spl.mics.application.messages.GetCarEvent;
+import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 
 /**
  * Logistic service in charge of delivering books that have been purchased to customers.
@@ -20,7 +24,10 @@ public class LogisticsService extends MicroService {
 
 	@Override
 	protected void initialize() {
+		Callback<DeliveryEvent> DeliveryCallback = c -> {
+			Future<DeliveryVehicle> f = this.sendEvent(new GetCarEvent());
+			f.get().deliver(c.getAddress(),c.getSpeed());
+		};
+		this.subscribeEvent(DeliveryEvent.class,DeliveryCallback);
 	}
-
-
 }

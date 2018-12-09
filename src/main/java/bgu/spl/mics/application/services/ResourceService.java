@@ -1,6 +1,10 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Future;
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.GetCarEvent;
+import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
 
 /**
@@ -14,15 +18,18 @@ import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
  */
 public class ResourceService extends MicroService{
 	private ResourcesHolder resourcesHolderRef;
-	public ResourceService(String name) {
+	public ResourceService(String name){
 		super(name);
 		resourcesHolderRef = ResourcesHolder.getInstance();
 	}
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+        Callback<GetCarEvent> getCarEventCallback =(c) ->  {
+          Future<DeliveryVehicle> f = resourcesHolderRef.acquireVehicle();
+          this.complete(c,f.get());
+        };
+        this.subscribeEvent(GetCarEvent.class,getCarEventCallback);
 	}
 
 }
