@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import org.json.simple.JSONObject;
 
 import java.io.Serializable;
 

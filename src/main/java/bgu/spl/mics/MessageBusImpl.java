@@ -16,10 +16,10 @@ public class MessageBusImpl implements MessageBus {
     private HashMap<Event,Future> FutureMap;
     private HashMap<MicroService,List<Class<? extends Event>>> EventSubscribe;
 	private HashMap<MicroService,List<Class<? extends Broadcast>>> BroadSubscribe;
+
+	private static class MessageBusImplHolder{private static MessageBus instance = new MessageBusImpl();}
     public static MessageBus getInstance(){
-        if(instance == null)
-            instance = new MessageBusImpl();
-        return instance;
+       return MessageBusImplHolder.instance;
     }
 	private MessageBusImpl(){
 		ServiceMap = new HashMap<>();
