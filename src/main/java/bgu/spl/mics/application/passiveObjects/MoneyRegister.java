@@ -1,5 +1,10 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.List;
 
@@ -55,6 +60,21 @@ public class MoneyRegister {
      * This method is called by the main method in order to generate the output.. 
      */
 	public void printOrderReceipts(String filename) {
-		//TODO: Implement this
+		JSONObject obj = new JSONObject();
+		JSONArray orderArr = new JSONArray();
+		for (OrderReceipt r:receiptList) {
+			orderArr.add(r.toJSon());
+		}
+		obj.put("receipts",orderArr);
+		try {
+
+			FileWriter file = new FileWriter(filename);
+			file.write(obj.toJSONString());
+			file.flush();
+			file.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -113,7 +113,8 @@ public class BookStoreRunner {
             String address = (String) curr.get("address");
             int distance = (Integer) curr.get("distance");
             JSONObject creditCard = (JSONObject) curr.get("creditCard");
-            int[] creditcard = {(Integer)creditCard.get("number"),(Integer)creditCard.get("amount")};
+            int creditCardNum = (Integer)creditCard.get("number");
+            int creditCardAmount = (Integer)creditCard.get("amount");
             JSONArray ordersArr = (JSONArray)curr.get("orderSchedule");
             Object[] orders = new Object[ordersArr.size()];
             for(int j = 0; j<orders.length;j++){

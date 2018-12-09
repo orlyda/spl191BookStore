@@ -1,5 +1,9 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import org.json.simple.JSONObject;
+
+import java.io.Serializable;
+
 /**
  * Passive data-object representing a information about a certain book in the inventory.
  * You must not alter any of the given public methods of this class. 
@@ -53,7 +57,8 @@ public class BookInventoryInfo {
 	 public void setPrice(int price){
 		this.price=price;
 	 }
-	
+
+
 
 	
 }

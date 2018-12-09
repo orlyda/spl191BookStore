@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import org.json.simple.JSONObject;
+
 /**
  * Passive data-object representing a receipt that should 
  * be sent to a customer after the completion of a BookOrderEvent.
@@ -78,4 +80,15 @@ public class OrderReceipt {
      * processing the order.
      */
 	public int getProcessTick() {return processTick;}
+	public JSONObject toJSon(){
+		JSONObject obj = new JSONObject();
+		obj.put("order id", orderId);
+		obj.put("seller", seller);
+		obj.put("customer id",customerId);
+		obj.put("book title",bookTitle);
+		obj.put("price", price);
+		obj.put("issued tick",issuedTick);
+		obj.put("order tick", orderTick);
+		return obj;
+	}
 }
