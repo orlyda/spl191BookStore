@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,13 +21,21 @@ import java.util.List;
  */
 public class MoneyRegister implements Serializable {
 	private List<OrderReceipt> receiptList;
+	private int totalEarnings;
+
+	private MoneyRegister(){
+		receiptList=new ArrayList<>();
+	}
+
+	private static class MoneySingletone{
+		private static MoneyRegister instance=new MoneyRegister();
+	}
 	
 	/**
      * Retrieves the single instance of this class.
      */
 	public static MoneyRegister getInstance() {
-		//TODO: Implement this
-		return null;
+		return MoneySingletone.instance;
 	}
 	
 	/**
@@ -35,15 +44,17 @@ public class MoneyRegister implements Serializable {
      * @param r		The receipt to save in the money register.
      */
 	public void file (OrderReceipt r) {
-		//TODO: Implement this.
+		if (r!=null) {
+			receiptList.add(r);
+			totalEarnings+=r.getPrice();
+		}
 	}
 	
 	/**
      * Retrieves the current total earnings of the store.  
      */
 	public int getTotalEarnings() {
-		//TODO: Implement this
-		return 0;
+		return totalEarnings;
 	}
 	
 	/**
@@ -52,7 +63,7 @@ public class MoneyRegister implements Serializable {
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-		// TODO Implement this
+		c.chargeCreditCard(amount);
 	}
 	
 	/**
