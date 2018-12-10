@@ -72,7 +72,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-	    ServiceMap.get(EventMap.get(e).peek()).add(e);
+	    ServiceMap.get(EventMap.get(e.getClass()).peek()).add(e);
 		if(EventMap.get(e).add(EventMap.get(e).remove())) {
 		    FutureMap.put(e,new Future<T>());
 		    return FutureMap.get(e);

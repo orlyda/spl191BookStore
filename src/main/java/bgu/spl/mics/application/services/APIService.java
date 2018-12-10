@@ -19,7 +19,7 @@ import java.util.concurrent.*;
  * It informs the store about desired purchases using {@link BookOrderEvent}.
  * This class may not hold references for objects which it is not responsible for:
  * {@link ResourcesHolder}, {@link MoneyRegister}, {@link Inventory}.
- * 
+ *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
@@ -42,31 +42,27 @@ public class APIService extends MicroService{
 	protected void initialize() {
 		Callback<TickBroadcast> tickCallback= t -> {
 			if(futureOrders.size()>0){
-			ExecutorService e=Executors.newFixedThreadPool(futureOrders.size());
-			CompletionService<OrderReceipt> cService=new ExecutorCompletionService<>(e);
-			int j =0;
-			synchronized (futureOrders){//take order from the list in the correct tick
-				// and send event that handle the order
-			while(!futureOrders.isEmpty() && futureOrders.get(0).getTick()==t.getTick()) {
-				cService.submit(new Callable<OrderReceipt>() {
-					@Override
-					public OrderReceipt call(){
-						return sendEvent(new OrderBookEvent(customer, futureOrders.get(0).getBookTitle(),
-								futureOrders.get(0).getTick())).get();
-					}});
-				futureOrders.remove(0);
-				j++;
-			}}//now all the order were sent,need to wait until each of them will be completed,
-			// and then add the OrderReceipt to customers list of OrderReceipts
-			e.shutdown();
-			for(;j>0;j--){
-				try {
-					OrderReceipt orderReceipt=cService.take().get();
-					customer.addReceipt(orderReceipt);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}}};
+				ExecutorService e=Executors.newFixedThreadPool(futureOrders.size());
+				CompletionService<OrderReceipt> cService=new ExecutorCompletionService<>(e);
+				int j =0;
+				synchronized (futureOrders){//take order from the list in the correct tick
+					// and send event that handle the order
+					while(!futureOrders.isEmpty() && futureOrders.get(0).getTick()==t.getTick()) {
+						cService.submit(() -> sendEvent(new OrderBookEvent(customer, futureOrders.get(0).getBookTitle(),
+								futureOrders.get(0).getTick())).get());
+						futureOrders.remove(0);
+						j++;
+					}}//now all the order were sent,need to wait until each of them will be completed,
+				// and then add the OrderReceipt to customers list of OrderReceipts
+				e.shutdown();
+				for(;j>0;j--){
+					try {
+						OrderReceipt orderReceipt=cService.take().get();
+						customer.addReceipt(orderReceipt);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}}};
 		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
 		this.subscribeEvent(CheckEnoughMoneyEvent.class, c -> {
 			MoneyStatus status;
