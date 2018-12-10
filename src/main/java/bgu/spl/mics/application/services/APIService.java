@@ -41,6 +41,7 @@ public class APIService extends MicroService{
 	@Override
 	protected void initialize() {
 		Callback<TickBroadcast> tickCallback= t -> {
+			if(futureOrders.size()>0){
 			ExecutorService e=Executors.newFixedThreadPool(futureOrders.size());
 			CompletionService<OrderReceipt> cService=new ExecutorCompletionService<>(e);
 			int j =0;
@@ -60,11 +61,12 @@ public class APIService extends MicroService{
 			e.shutdown();
 			for(;j>0;j--){
 				try {
-					customer.addReceipt(cService.take().get());
+					OrderReceipt orderReceipt=cService.take().get();
+					customer.addReceipt(orderReceipt);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-			}};
+			}}};
 		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
 		this.subscribeEvent(CheckEnoughMoneyEvent.class, c -> {
 			MoneyStatus status;
@@ -74,7 +76,7 @@ public class APIService extends MicroService{
 			else
 				status=new MoneyStatus(c.getPrice(),false);
 			complete(c,status); });
-		this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
 	}
 
 

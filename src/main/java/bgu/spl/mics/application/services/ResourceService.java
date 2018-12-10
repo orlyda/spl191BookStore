@@ -31,7 +31,7 @@ public class ResourceService extends MicroService{
           this.complete(c,f.get());
         };
         this.subscribeEvent(GetCarEvent.class,getCarEventCallback);
-		this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
 	}
 
 }

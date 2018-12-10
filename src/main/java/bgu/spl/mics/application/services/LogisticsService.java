@@ -30,6 +30,6 @@ public class LogisticsService extends MicroService {
 			f.get().deliver(c.getAddress(),c.getSpeed());
 		};
 		this.subscribeEvent(DeliveryEvent.class,DeliveryCallback);
-		this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
 	}
 }
