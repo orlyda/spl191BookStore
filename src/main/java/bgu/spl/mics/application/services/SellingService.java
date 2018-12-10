@@ -5,11 +5,12 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.messages.OrderBookEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.MoneyRegister;
 import bgu.spl.mics.application.passiveObjects.MoneyStatus;
 import bgu.spl.mics.application.passiveObjects.OrderReceipt;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -30,6 +31,7 @@ public class SellingService extends MicroService{
 
 	public SellingService(String name) {
 		super(name);
+		mr = new AtomicReference<>();
 		this.mr.set(MoneyRegister.getInstance());
 	}
 
@@ -64,6 +66,7 @@ public class SellingService extends MicroService{
 			}
 		};
 		this.subscribeEvent(OrderBookEvent.class,orderBookEventCallback);
+        this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
 	}
 
 }

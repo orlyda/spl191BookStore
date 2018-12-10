@@ -5,6 +5,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
 import bgu.spl.mics.application.messages.OrderBookEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.*;
 
@@ -73,6 +74,7 @@ public class APIService extends MicroService{
 			else
 				status=new MoneyStatus(c.getPrice(),false);
 			complete(c,status); });
+		this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
 	}
 
 

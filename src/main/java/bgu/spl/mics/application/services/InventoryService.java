@@ -1,14 +1,15 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.*;
+import bgu.spl.mics.Callback;
+import bgu.spl.mics.Future;
+import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.MoneyStatus;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
 
-import java.util.HashMap;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicReference;
 /**
  * InventoryService is in charge of the book inventory and stock.
  * Holds a reference to the {@link Inventory} singleton of the store.
@@ -26,6 +27,7 @@ public class InventoryService extends MicroService{
 
 	public InventoryService(String name) {
 		super("Inventory"+name);
+		inventory= new AtomicReference<>();
 		inventory.set(Inventory.getInstance());
 	}
 
@@ -54,5 +56,6 @@ public class InventoryService extends MicroService{
 			}
 		};
 		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
+        this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
 	}
 }

@@ -1,9 +1,6 @@
 package bgu.spl.mics.application.services;
 
 
-import bgu.spl.mics.Broadcast;
-import bgu.spl.mics.Callback;
-import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
@@ -41,8 +38,7 @@ public class TimeService extends MicroService {
 	class timetask extends TimerTask{
         public void run(){
             if(time.get()<duration) {
-                sendBroadcast(new TickBroadcast(time.get()));
-                time.getAndIncrement();
+                sendBroadcast(new TickBroadcast(time.getAndIncrement()));
             }
             else if(time.get()==duration)
             	sendBroadcast(new TerminateBroadcast());

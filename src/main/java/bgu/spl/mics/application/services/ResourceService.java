@@ -4,6 +4,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.GetCarEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
 
@@ -30,6 +31,7 @@ public class ResourceService extends MicroService{
           this.complete(c,f.get());
         };
         this.subscribeEvent(GetCarEvent.class,getCarEventCallback);
+		this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
 	}
 
 }
