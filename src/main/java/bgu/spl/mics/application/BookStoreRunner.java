@@ -67,6 +67,7 @@ public class BookStoreRunner {
         }
         TimeService t=new TimeService("TimeService",time[0],time[1]);
         e.execute(t);
+        e.shutdown();
 
     }
 
