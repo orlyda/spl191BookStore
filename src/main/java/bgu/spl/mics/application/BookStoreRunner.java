@@ -3,8 +3,6 @@ import bgu.spl.mics.MessageBus;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
-
-import jdk.incubator.http.internal.common.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,18 +33,18 @@ public class BookStoreRunner {
 
         Object[] services=getServices();
 
-        Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONObject) services[5]);
+        Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);
         //the number of microService from each type
         int sellingNum=(Integer)services[1];
         int inventoryNum=(Integer)services[2];
         int logisticsNum=(Integer)services[3];
         int resourceNum=(Integer)services[4];
 
-        int[] time=getTime((JSONObject) services[0]);
+        int[] time=(int[])services[0];
         ExecutorService e = Executors.newFixedThreadPool
                 (customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum+1);
         for (int i=0;i<customers.length;i++){
-            APIService a=new APIService(customers[i].second,customers[i].first,String.valueOf(i));
+            APIService a=new APIService(customers[i].getSecond(),customers[i].getFirst(),String.valueOf(i));
             e.execute(a);
         }
         for(int i=0;i<sellingNum;i++){
@@ -79,9 +77,9 @@ public class BookStoreRunner {
             for(int i = 0; i<myBooks.length;i++){
                 JSONObject curr = (JSONObject) books.get(i);
                 String name = (String) curr.get("bookTitle");
-                int amount =  (Integer) curr.get("amount");
-                int price = (Integer) curr.get("price");
-                myBooks[i]= new BookInventoryInfo(name,amount,price);
+                long amount =  (Long) curr.get("amount");
+                long price = (Long) curr.get("price");
+                myBooks[i]= new BookInventoryInfo(name,(int)amount,(int)price);
             }
             return myBooks;
         }catch (Exception e){
@@ -94,13 +92,15 @@ public class BookStoreRunner {
         try{
             Object obj = parser.parse(new FileReader("input.json"));
             JSONObject jsonObject = (JSONObject) obj;
-            JSONArray cars = (JSONArray)jsonObject.get("initialResources");
+            JSONArray resources = (JSONArray)jsonObject.get("initialResources");
+            JSONObject medStage= (JSONObject) resources.get(0);
+            JSONArray cars = (JSONArray) medStage.get("vehicles");
             DeliveryVehicle[] myCars = new DeliveryVehicle[cars.size()];
             for(int i = 0; i<myCars.length;i++){
                 JSONObject curr = (JSONObject) cars.get(i);
-                int license =  (Integer) curr.get("license");
-                int speed = (Integer) curr.get("speed");
-                myCars[i]= new DeliveryVehicle(license,speed);
+                long license =  (Long) curr.get("license");
+                long speed = (Long) curr.get("speed");
+                myCars[i]= new DeliveryVehicle((int)license,(int)speed);
             }
             return myCars;
         }catch (Exception e){
@@ -115,11 +115,15 @@ public class BookStoreRunner {
             JSONObject jsonObject = (JSONObject) obj;
             JSONObject services = (JSONObject) jsonObject.get("services");
             Object[] myServices = new Object[6];
+            Long selling = (Long)services.get("selling");
+            Long inventoryService =(Long)services.get("inventoryService");
+            Long logistics = (Long)services.get("logistics");
+            Long resourcesService = (Long)services.get("resourcesService");
             myServices[0]=getTime(services);
-            myServices[1]=  services.get("selling");
-            myServices[2]=  services.get("inventoryService");
-            myServices[3]=  services.get("logistics");
-            myServices[4]=  services.get("resourcesService");
+            myServices[1]=  selling.intValue();
+            myServices[2]=  inventoryService.intValue();
+            myServices[3]=  logistics.intValue();
+            myServices[4]=  resourcesService.intValue();
             //
             myServices[5]=  services.get("customers");
             return myServices;
@@ -132,32 +136,33 @@ public class BookStoreRunner {
     public static int[] getTime(JSONObject services){
         int[] time = new int[2];
         JSONObject curr = (JSONObject) services.get("time");
-        time[0] = (Integer) curr.get("speed");
-        time[1] = (Integer) curr.get("duration");
+        long num1 = (Long) curr.get("speed");
+        long num2 = (Long) curr.get("duration");
+        time[0]=(int)num1;
+        time[1]=(int)num2;
         return time;
     }
 
-    public static Pair<Customer,ArrayList<FutureOrder>>[] getCustomers(JSONObject services){
+    public static Pair<Customer,ArrayList<FutureOrder>>[] getCustomers(JSONArray customersArr){
         Pair<Customer,ArrayList<FutureOrder>>[] Customers;
-        JSONArray customersJsonObject = (JSONArray) services.get("customers");
-        Customers = new Pair[customersJsonObject.size()];
+        Customers = new Pair[customersArr.size()];
         for (int i = 0; i<Customers.length;i++){
-            JSONObject curr= (JSONObject)customersJsonObject.get(i);
-            int id = (Integer) curr.get("id");
+            JSONObject curr= (JSONObject)customersArr.get(i);
+            long id = (Long) curr.get("id");
             String name = (String) curr.get("name");
             String address = (String) curr.get("address");
-            int distance = (Integer) curr.get("distance");
+            long distance = (Long) curr.get("distance");
             JSONObject creditCard = (JSONObject) curr.get("creditCard");
-            int creditCardNum = (Integer)creditCard.get("number");
-            int creditCardAmount = (Integer)creditCard.get("amount");
-            Customer c=new Customer(name,id,address,distance,creditCardAmount,creditCardNum);
+            long creditCardNum = (Long) creditCard.get("number");
+            long creditCardAmount = (Long) creditCard.get("amount");
+            Customer c=new Customer(name,(int)id,address,(int)distance,(int)creditCardAmount,(int)creditCardNum);
             JSONArray ordersArr = (JSONArray)curr.get("orderSchedule");
             ArrayList<FutureOrder> orders = new ArrayList<>();
             for(int j = 0; j<ordersArr.size();j++){
-                JSONObject order = (JSONObject) ordersArr.get(i);
+                JSONObject order = (JSONObject) ordersArr.get(j);
                 String bookTitle = (String)order.get("bookTitle");
-                int tick = (int)order.get("tick");
-                orders.add(new FutureOrder(bookTitle,tick));
+                long tick = (Long) order.get("tick");
+                orders.add(new FutureOrder(bookTitle,(int)tick));
             }
             Customers[i]=new Pair<>(c,orders);
         }
@@ -178,6 +183,16 @@ public class BookStoreRunner {
         } catch (IOException i) {
             i.printStackTrace();
         }
+    }
+    public ArrayList<FutureOrder> toList(JSONArray ary){
+        ArrayList<FutureOrder> arr = new ArrayList<>();
+        for(int i=0; i<ary.size();i++){
+            JSONObject obj= (JSONObject) ary.get(i);
+            String s = (String) obj.get("bookTitle");
+            long l = (Long)obj.get("tick");
+            arr.add(new FutureOrder(s,(int)l));
+        }
+        return arr;
     }
 
 }
