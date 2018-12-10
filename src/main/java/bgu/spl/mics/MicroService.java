@@ -159,6 +159,7 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         initialize();
+        messageBus.register(this);
         while (!terminated) {
             try {
                 if(!callbackMap.isEmpty()) {

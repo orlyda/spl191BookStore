@@ -68,8 +68,12 @@ public class Customer implements Serializable {
      * Retrieves this customers credit card serial number.    
      */
 	public int getCreditNumber() {return credeitNumber;}
+
 	public void addReceipt(OrderReceipt receipt){
 		receiptList.add(receipt);
 	}
-	
+
+	public void chargeCreditCard(int amount) {
+		this.availableCreditAmount -= amount;
+	}
 }

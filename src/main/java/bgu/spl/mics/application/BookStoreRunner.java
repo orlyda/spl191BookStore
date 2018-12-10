@@ -43,6 +43,7 @@ public class BookStoreRunner {
         int resourceNum=(Integer)services[4];
 
         int[] time=getTime((JSONObject) services[0]);
+        //creating all the threads
         ExecutorService e = Executors.newFixedThreadPool
                 (customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum+1);
         for (int i=0;i<customers.length;i++){
