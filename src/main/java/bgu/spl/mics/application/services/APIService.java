@@ -47,7 +47,7 @@ public class APIService extends MicroService{
 				int j =0;
 				synchronized (futureOrders){//take order from the list in the correct tick
 					// and send event that handle the order
-					while(!futureOrders.isEmpty() && futureOrders.get(0).getTick()==t.getTick()) {
+					while((!futureOrders.isEmpty()) && futureOrders.get(0).getTick()==t.getTick()) {
 						cService.submit(() -> sendEvent(new OrderBookEvent(customer, futureOrders.get(0).getBookTitle(),
 								futureOrders.get(0).getTick())).get());
 						futureOrders.remove(0);
@@ -55,10 +55,11 @@ public class APIService extends MicroService{
 					}}//now all the order were sent,need to wait until each of them will be completed,
 				// and then add the OrderReceipt to customers list of OrderReceipts
 				e.shutdown();
-				for(;j>0;j--){
+				while (j>0){
 					try {
 						OrderReceipt orderReceipt=cService.take().get();
 						customer.addReceipt(orderReceipt);
+						j--;
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}

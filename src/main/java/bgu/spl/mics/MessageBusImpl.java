@@ -73,7 +73,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 	    ServiceMap.get(EventMap.get(e.getClass()).peek()).add(e);
-		if(EventMap.get(e).add(EventMap.get(e).remove())) {
+		if(EventMap.get(e.getClass()).add(EventMap.get(e.getClass()).remove())) {
 		    FutureMap.put(e,new Future<T>());
 		    return FutureMap.get(e);
         }
@@ -85,8 +85,10 @@ public class MessageBusImpl implements MessageBus {
 	public void register(MicroService m) {
 	    if(!ServiceMap.containsKey(m)) {
 			ServiceMap.put(m, new LinkedBlockingDeque<>());
-			EventSubscribe.put(m, new LinkedList());
-			BroadSubscribe.put(m, new LinkedList());
+			if(!EventSubscribe.containsKey(m))
+                EventSubscribe.put(m, new LinkedList());
+			if(!BroadSubscribe.containsKey(m))
+                BroadSubscribe.put(m, new LinkedList());
 		}
 	}
 
