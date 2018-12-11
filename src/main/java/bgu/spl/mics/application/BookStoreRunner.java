@@ -64,7 +64,10 @@ public class BookStoreRunner {
         }
         TimeService t=new TimeService("TimeService",time[0],time[1]);
         e.execute(t);
-
+        Customer[] Customers = new Customer[customers.length];
+        for(int i=0;i<customers.length;i++)
+            Customers[i]= customers[i].getFirst();
+        printCustomers("Customers.txt",Customers );
     }
 
     public static BookInventoryInfo[] getInventory(){

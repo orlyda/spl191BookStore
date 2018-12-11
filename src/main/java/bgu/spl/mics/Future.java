@@ -71,15 +71,13 @@ public class Future<T> {
 	 */
 	public synchronized T get(long timeout, TimeUnit unit) {
 		long toWait =timeout*unit.toMillis(1);
-		if(!isDone()){
+		if (!isDone()){
 			try {
-				//System.out.println("Hi");
 				this.wait(toWait);
-				return result;
 			} catch (InterruptedException ignored) {
-				return result;
+
 			}
 		}
-		return null;
+		return result;
 	}
 }

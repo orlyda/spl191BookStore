@@ -159,8 +159,8 @@ public abstract class MicroService implements Runnable {
 
     @Override
     public final void run() {
-        initialize();
         messageBus.register(this);
+        initialize();
         while (!terminated) {
             try {
                 if(!callbackMap.isEmpty()) {
@@ -170,6 +170,7 @@ public abstract class MicroService implements Runnable {
             }
             catch (InterruptedException e){}
         }
+       messageBus.unregister(this);
     }
 
 

@@ -3,8 +3,8 @@ package bgu.spl.mics;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -12,10 +12,9 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
-    private static MessageBus instance = null;
-    private HashMap<MicroService,BlockingDeque<Message>> ServiceMap;
+    private HashMap<MicroService, BlockingQueue<Message>> ServiceMap;
     private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap;
-    private HashMap<Class<? extends Message> ,BlockingDeque<MicroService>> EventMap;
+    private HashMap<Class<? extends Message> ,BlockingQueue<MicroService>> EventMap;
     private HashMap<Event,Future> FutureMap;
     private HashMap<MicroService,List<Class<? extends Event>>> EventSubscribe;
 	private HashMap<MicroService,List<Class<? extends Broadcast>>> BroadSubscribe;
@@ -34,13 +33,15 @@ public class MessageBusImpl implements MessageBus {
 	}
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-	    if(!EventMap.containsKey(type))
-	        EventMap.put(type, new LinkedBlockingDeque<>());
+	    if(!EventMap.containsKey(type)) {
+            EventMap.put(type, new LinkedBlockingQueue<>());
+        }
         if(!EventMap.get(type).contains(m)) {
-			EventMap.get(type).add(m);
-            if(!EventSubscribe.containsKey(m))
-                EventSubscribe.put(m,new LinkedList<>());
-			EventSubscribe.get(m).add(type);
+            try {
+                EventMap.get(type).put(m);
+            } catch (InterruptedException e) {}
+            EventSubscribe.get(m).add(type);
+
 		}
 	}
 
@@ -50,45 +51,60 @@ public class MessageBusImpl implements MessageBus {
 	        BroadcastMap.put(type,new LinkedList<>());
         if(!BroadcastMap.get(type).contains(m)) {
 			BroadcastMap.get(type).add(m);
-			if(!BroadSubscribe.containsKey(m)) {
-                BroadSubscribe.put(m, new LinkedList<>());}
 			BroadSubscribe.get(m).add(type);
 		}
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		FutureMap.get(e).resolve(result);
-		FutureMap.remove(e);
+	    synchronized (FutureMap) {
+            Future<T> f = FutureMap.get(e);
+            f.resolve(result);
+        }
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
 	    List<MicroService> services = BroadcastMap.get(b.getClass());
         for (MicroService m: services) {
-            ServiceMap.get(m).add(b);
+            try {
+                ServiceMap.get(m).put((Message) b);
+            } catch (InterruptedException e) {}
         }
 	}
 
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
-	    ServiceMap.get(EventMap.get(e.getClass()).peek()).add(e);
-		if(EventMap.get(e.getClass()).add(EventMap.get(e.getClass()).remove())) {
-		    FutureMap.put(e,new Future<T>());
-		    return FutureMap.get(e);
+	public <T> Future<T> sendEvent(Event<T> e){
+		if(EventMap.containsKey(e.getClass())) {
+           if(EventMap.get(e.getClass()).isEmpty())
+               return null;
+           else {
+               BlockingQueue<MicroService> queue = EventMap.get(e.getClass());
+               MicroService m = queue.poll();
+               try {
+                   ServiceMap.get(m).put(e);
+               } catch (InterruptedException e1) {
+               }
+               queue.add(m);
+               synchronized (FutureMap) {
+                   Future<T> f = new Future<>();
+                   FutureMap.put(e, f);
+                   return f;
+               }
+           }
         }
 		else
-		    return null;
+            return null;
 	}
 
 	@Override
 	public void register(MicroService m) {
 	    if(!ServiceMap.containsKey(m)) {
-			ServiceMap.put(m, new LinkedBlockingDeque<>());
+			ServiceMap.put(m, new LinkedBlockingQueue<>());
 			if(!EventSubscribe.containsKey(m))
-                EventSubscribe.put(m, new LinkedList());
+                EventSubscribe.put(m, new LinkedList<>());
 			if(!BroadSubscribe.containsKey(m))
-                BroadSubscribe.put(m, new LinkedList());
+                BroadSubscribe.put(m, new LinkedList<>());
 		}
 	}
 
@@ -106,7 +122,7 @@ public class MessageBusImpl implements MessageBus {
     }
 
 	@Override
-	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+	public Message awaitMessage(MicroService m) throws InterruptedException {
         if (!ServiceMap.containsKey(m))
             throw new IllegalStateException();
 		return ServiceMap.get(m).take();
