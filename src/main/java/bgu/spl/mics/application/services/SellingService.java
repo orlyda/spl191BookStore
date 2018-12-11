@@ -58,11 +58,13 @@ public class SellingService extends MicroService{
 				receipt.setIssuedTick(currentTick);
 				mr.get().file(receipt);
 				complete(o,receipt);
+				System.out.println("9");
 			}
 			else {
 				receipt.setPrice(-1);
 				receipt.setIssuedTick(currentTick);
 				complete(o, receipt);
+				System.out.println("9");
 			}
 		};
 		this.subscribeEvent(OrderBookEvent.class,orderBookEventCallback);

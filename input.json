@@ -28,7 +28,7 @@
         "creditCard":{"number":67890,"amount":88},
         "orderSchedule": [
             {"bookTitle": "Harry Poter", "tick": 3},
-            {"bookTitle": "The Hunger Games", "tick": 3}
+            {"bookTitle": "The Hunger Games", "tick": 2}
           ]
       },
     {

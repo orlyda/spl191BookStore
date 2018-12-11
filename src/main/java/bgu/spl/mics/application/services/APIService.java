@@ -26,16 +26,21 @@ import java.util.concurrent.*;
 public class APIService extends MicroService{
 	private final Customer customer;
 	private ArrayList<FutureOrder> futureOrders;
-	private List<Future<OrderReceipt>> futureList;
+	//private List<Future<OrderReceipt>> futureList;
 
 	public APIService( ArrayList<FutureOrder> orders, Customer c,String name){
 		super("APIService"+name);
 		customer=c;
 		futureOrders=orders;
-		Comparator<FutureOrder> comparator= (futureOrder, t1) ->
-				Integer.compare(t1.getTick(), futureOrder.getTick());
+		Comparator<FutureOrder> comparator= (futureOrder, t1) ->{
+			if(futureOrder.getTick()<t1.getTick())
+				return -1;
+			if(futureOrder.getTick()>t1.getTick())
+				return 1;
+			return 0;
+		};
 		futureOrders.sort(comparator);
-		futureList= new ArrayList<>();
+		//futureList= new ArrayList<>();
 	}
 
 	@Override
@@ -47,28 +52,33 @@ public class APIService extends MicroService{
 				int j =0;
 				synchronized (futureOrders){//take order from the list in the correct tick
 					// and send event that handle the order
-
 					while((!futureOrders.isEmpty()) && futureOrders.get(0).getTick()==t.getTick()) {
+						System.out.println("y");
 						FutureOrder fut= futureOrders.remove(0);
 						cService.submit(new Callable<OrderReceipt>() {
 							@Override
 							public synchronized OrderReceipt call(){
+								System.out.println("x");
+
 								Future<OrderReceipt> f = sendEvent(new OrderBookEvent(customer, fut.getBookTitle(),
 										fut.getTick()));
+								System.out.println("z");
+
 								while (!f.isDone()) {
 									try {
 										wait();
+										System.out.println("c");
 									} catch (InterruptedException e1) {
 										e1.printStackTrace();
 									}
 								}
+								System.out.println("b");
 								return f.get();
 							}
 						});
 
 						j++;
-						}}//now all the order were sent,need to wait until each of them will be completed,
-				// and then add the OrderReceipt to customers list of OrderReceipts
+						}}
 				e.shutdown();
 				while (j>0){
 					try {
