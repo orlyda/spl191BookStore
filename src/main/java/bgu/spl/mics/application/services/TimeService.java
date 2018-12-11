@@ -43,7 +43,7 @@ public class TimeService extends MicroService {
             }
             else if(time.get()==duration) {
 				sendBroadcast(new TerminateBroadcast());
-				terminate();
+				cancel();
 			}
 	    }
     }
