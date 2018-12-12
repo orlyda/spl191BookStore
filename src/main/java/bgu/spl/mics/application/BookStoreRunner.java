@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /** This is the Main class of the application. You should parse the input file, 
  * create the different instances of the objects, and run the system.
@@ -25,13 +26,14 @@ public class BookStoreRunner {
     public static void main(String[] args) {
         MessageBus messageBus= MessageBusImpl.getInstance();
         //create the inventory, and load the books to it.
-        BookInventoryInfo[] inventoryInfos=getInventory();
+        String inputFile = args[0];
+        BookInventoryInfo[] inventoryInfos=getInventory(inputFile);
         Inventory inventory=Inventory.getInstance();
         inventory.load(inventoryInfos);
         //create the vehicles
-        DeliveryVehicle[] vehicles=getResources();
+        DeliveryVehicle[] vehicles=getResources(inputFile);
 
-        Object[] services=getServices();
+        Object[] services=getServices(inputFile);
 
         Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);
         //the number of microService from each type
@@ -39,10 +41,40 @@ public class BookStoreRunner {
         int inventoryNum=(Integer)services[2];
         int logisticsNum=(Integer)services[3];
         int resourceNum=(Integer)services[4];
-
+        ServiceInitCheck.SetInitCheck(sellingNum+inventoryNum+logisticsNum+resourceNum);
         int[] time=(int[])services[0];
         ExecutorService e = Executors.newFixedThreadPool
                 (customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum+1);
+        ActivateThreads(e,sellingNum,inventoryNum,logisticsNum,resourceNum,customers);
+
+        TimeService t=new TimeService("TimeService",time[0],time[1]);
+        MakeThreadsReady();
+        e.execute(t);
+        try {
+            e.awaitTermination(time[0]*time[1], TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e1) {}
+        Customer[] Customers = new Customer[customers.length];
+        for(int i=0;i<customers.length;i++)
+            Customers[i]= customers[i].getFirst();
+        CreateOutputs(args,Customers);
+    }
+    public static void MakeThreadsReady(){
+        while (!ServiceInitCheck.ready()){
+            try {
+                Thread.sleep(30);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+    public static void CreateOutputs(String[] args,Customer[] Customers){
+        printCustomers(args[1],Customers);
+        Inventory.getInstance().printInventoryToFile(args[2]);
+        MoneyRegister.getInstance().printOrderReceipts(args[3]);
+        MoneyRegister.getInstance().printMoneyRegister(args[4]);
+    }
+
+    public static void ActivateThreads(ExecutorService e, int sellingNum,int inventoryNum
+            ,int logisticsNum,int resourceNum, Pair<Customer,ArrayList<FutureOrder>>[] customers){
         for (int i=0;i<customers.length;i++){
             APIService a=new APIService(customers[i].getSecond(),customers[i].getFirst(),String.valueOf(i));
             e.execute(a);
@@ -62,18 +94,12 @@ public class BookStoreRunner {
         for(int i=0;i<resourceNum;i++){
             ResourceService r=new ResourceService(String.valueOf(i));
         }
-        TimeService t=new TimeService("TimeService",time[0],time[1]);
-        e.execute(t);
-        Customer[] Customers = new Customer[customers.length];
-        for(int i=0;i<customers.length;i++)
-            Customers[i]= customers[i].getFirst();
-        printCustomers("Customers.txt",Customers );
     }
 
-    public static BookInventoryInfo[] getInventory(){
+    public static BookInventoryInfo[] getInventory(String inputFile){
         JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader("input.json"));
+            Object obj = parser.parse(new FileReader(inputFile));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray books = (JSONArray)jsonObject.get("initialInventory");
             BookInventoryInfo[] myBooks = new BookInventoryInfo[books.size()];
@@ -90,10 +116,10 @@ public class BookStoreRunner {
         }
         return null;
     }
-    public static DeliveryVehicle[] getResources(){
+    public static DeliveryVehicle[] getResources(String inputFile){
         JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader("input.json"));
+            Object obj = parser.parse(new FileReader(inputFile));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray resources = (JSONArray)jsonObject.get("initialResources");
             JSONObject medStage= (JSONObject) resources.get(0);
@@ -111,10 +137,10 @@ public class BookStoreRunner {
         }
         return null;
     }
-    public static Object[] getServices(){
+    public static Object[] getServices(String inputFile){
         JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader("input.json"));
+            Object obj = parser.parse(new FileReader(inputFile));
             JSONObject jsonObject = (JSONObject) obj;
             JSONObject services = (JSONObject) jsonObject.get("services");
             Object[] myServices = new Object[6];
@@ -180,7 +206,7 @@ public class BookStoreRunner {
             FileOutputStream fileOut =
                     new FileOutputStream(filename);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(map.toString());
+            out.writeObject(map);
             out.close();
             fileOut.close();
         } catch (IOException i) {
@@ -199,6 +225,7 @@ public class BookStoreRunner {
     }
 
 }
+
 /*        Customer[] Customers;
         JSONArray customersJsonObject = (JSONArray) services.get("customers");
         Customers = new Customer[customersJsonObject.size()];

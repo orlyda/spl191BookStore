@@ -73,7 +73,6 @@ public class APIService extends MicroService{
 				e.shutdown();
 				while (j>0){
 					try {
-						System.out.println("Got to: "+j);
 						OrderReceipt orderReceipt=cService.take().get();
 						if(orderReceipt.getPrice()!=-1)
 							customer.addReceipt(orderReceipt);

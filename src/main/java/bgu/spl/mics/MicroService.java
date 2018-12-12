@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.passiveObjects.ServiceInitCheck;
+
 import java.util.HashMap;
 
 /**
@@ -161,6 +163,7 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         messageBus.register(this);
         initialize();
+        ServiceInitCheck.Decrease();
         while (!terminated) {
             try {
                 if(!callbackMap.isEmpty()) {
