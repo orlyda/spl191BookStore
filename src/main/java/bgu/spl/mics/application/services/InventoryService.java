@@ -36,29 +36,13 @@ public class InventoryService extends MicroService{
 		Callback<CheckAvailabilityEvent> checkCallback= c -> {
 			int price=inventory.get().checkAvailabiltyAndGetPrice(c.getBookTitle()); //the book price
 			if(price!=-1){//the book is available
-				System.out.println("5");
-				CheckEnoughMoneyEvent moneyEvent=new CheckEnoughMoneyEvent(price);
-				Future<MoneyStatus> moneyStatusFuture=sendEvent(moneyEvent);
-				synchronized (moneyStatusFuture) {
-					while (!moneyStatusFuture.isDone()) {
-						try {
-							System.out.println("5");
-							moneyStatusFuture.wait();
-						} catch (InterruptedException e) {}
-					}
-				}
-				if (moneyStatusFuture.get().isEnoughMoney()) {
+				if (c.getAvailableMoney()>=price) {
 					//the book available and there is enough money
-					System.out.println("7");
-					complete(c, moneyStatusFuture.get());
-					System.out.println("8");
+					complete(c, new MoneyStatus(price,true));
 				}
 				else {
-					System.out.println("9");
 					complete(c, new MoneyStatus(price, false));
 				}
-
-
 			}
 			else{//the book is not in stock
 				complete(c, new MoneyStatus(price,false));

@@ -58,47 +58,36 @@ public class APIService extends MicroService{
 						cService.submit(new Callable<OrderReceipt>() {
 							@Override
 							public synchronized OrderReceipt call(){
-								System.out.println("x");
-
 								Future<OrderReceipt> f = sendEvent(new OrderBookEvent(customer, fut.getBookTitle(),
-										fut.getTick()));
+										fut.getTick(),customer.getAvailableCreditAmount()));
 								System.out.println("z");
 
 								while (!f.isDone()) {
 									try {
 										wait();
-										System.out.println("c");
 									} catch (InterruptedException e1) {
 										e1.printStackTrace();
 									}
 								}
-								System.out.println("b");
 								return f.get();
 							}
 						});
-
 						j++;
 						}}
 				e.shutdown();
 				while (j>0){
 					try {
 						OrderReceipt orderReceipt=cService.take().get();
-						customer.addReceipt(orderReceipt);
+						if(orderReceipt.getPrice()!=-1)
+							customer.addReceipt(orderReceipt);
+						System.out.println("order completed");
 						j--;
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
 				}}};
 		this.subscribeBroadcast(TickBroadcast.class,tickCallback);
-		this.subscribeEvent(CheckEnoughMoneyEvent.class, c -> {
-			MoneyStatus status;
-			if (customer.getAvailableCreditAmount()>=c.getPrice()) {
-				status=new MoneyStatus(c.getPrice(),true);
-			}
-			else
-				status=new MoneyStatus(c.getPrice(),false);
-			complete(c,status); });
-		this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
 	}
 
 

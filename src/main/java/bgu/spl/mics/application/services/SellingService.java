@@ -43,7 +43,7 @@ public class SellingService extends MicroService{
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
 					o.getBookTitle(),o.getTick(),currentTick);
 
-			CheckAvailabilityEvent event=new CheckAvailabilityEvent(o.getBookTitle());
+			CheckAvailabilityEvent event=new CheckAvailabilityEvent(o.getBookTitle(),o.getAvailableMoney());
 			Future<MoneyStatus> futureStatus= sendEvent(event);
 			synchronized (futureStatus) {
 				while (!futureStatus.isDone()) {
@@ -58,13 +58,11 @@ public class SellingService extends MicroService{
 				receipt.setIssuedTick(currentTick);
 				mr.get().file(receipt);
 				complete(o,receipt);
-				System.out.println("9");
 			}
 			else {
 				receipt.setPrice(-1);
 				receipt.setIssuedTick(currentTick);
 				complete(o, receipt);
-				System.out.println("9");
 			}
 		};
 		this.subscribeEvent(OrderBookEvent.class,orderBookEventCallback);
