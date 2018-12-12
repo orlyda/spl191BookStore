@@ -37,10 +37,11 @@ public class MessageBusImpl implements MessageBus {
             EventMap.put(type, new LinkedBlockingQueue<>());
         }
         if(!EventMap.get(type).contains(m)) {
+            EventSubscribe.get(m).add(type);
             try {
                 EventMap.get(type).put(m);
             } catch (InterruptedException e) {}
-            EventSubscribe.get(m).add(type);
+
 
 		}
 	}
@@ -50,14 +51,17 @@ public class MessageBusImpl implements MessageBus {
 	    if(!BroadcastMap.containsKey(type))
 	        BroadcastMap.put(type,new LinkedList<>());
         if(!BroadcastMap.get(type).contains(m)) {
+            BroadSubscribe.get(m).add(type);
 			BroadcastMap.get(type).add(m);
-			BroadSubscribe.get(m).add(type);
 		}
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-	    synchronized (FutureMap) {
+        synchronized (e) {
+            while(FutureMap.get(e)==null)
+                try{wait();}
+                catch (Exception ignored){}
             Future<T> f = FutureMap.get(e);
             f.resolve(result);
         }
@@ -66,12 +70,14 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 	    List<MicroService> services = BroadcastMap.get(b.getClass());
-        for (MicroService m: services) {
-            try {
-                ServiceMap.get(m).put((Message) b);
-            } catch (InterruptedException e) {}
+        if(services!=null){
+            for (MicroService m: services) {
+                try {
+                    ServiceMap.get(m).put((Message) b);
+                } catch (InterruptedException e) {}
+            }
         }
-	}
+    }
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e){
@@ -86,7 +92,7 @@ public class MessageBusImpl implements MessageBus {
                } catch (InterruptedException e1) {
                }
                queue.add(m);
-               synchronized (FutureMap) {
+               synchronized (e) {
                    Future<T> f = new Future<>();
                    FutureMap.put(e, f);
                    return f;
@@ -99,34 +105,37 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-	    if(!ServiceMap.containsKey(m)) {
-			ServiceMap.put(m, new LinkedBlockingQueue<>());
-			if(!EventSubscribe.containsKey(m))
-                EventSubscribe.put(m, new LinkedList<>());
-			if(!BroadSubscribe.containsKey(m))
-                BroadSubscribe.put(m, new LinkedList<>());
-		}
+	    synchronized (m) {
+            if (!ServiceMap.containsKey(m)) {
+                ServiceMap.put(m, new LinkedBlockingQueue<>());
+                if (!EventSubscribe.containsKey(m))
+                    EventSubscribe.put(m, new LinkedList<>());
+                if (!BroadSubscribe.containsKey(m))
+                    BroadSubscribe.put(m, new LinkedList<>());
+            }
+        }
 	}
 
 	@Override
-	public void unregister(MicroService m){
-	        ServiceMap.remove(m);
-	        for(Class<? extends Event> c : EventSubscribe.get(m)){
-	        	EventMap.get(c).remove(m);
-	        }
-		    for(Class<? extends Broadcast> c : BroadSubscribe.get(m)){
-		    	BroadcastMap.get(c).remove(m);
-		    }
-		    EventSubscribe.remove(m);
-		    BroadSubscribe.remove(m);
+    public void unregister(MicroService m){
+        for(Class<? extends Broadcast> c : BroadSubscribe.get(m)){
+            BroadcastMap.get(c).remove(m);
+        }
+        for(Class<? extends Event> c : EventSubscribe.get(m)){
+            EventMap.get(c).remove(m);
+        }
+        EventSubscribe.remove(m);
+        BroadSubscribe.remove(m);
+        ServiceMap.remove(m);
     }
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-        if (!ServiceMap.containsKey(m))
-            throw new IllegalStateException();
-		return ServiceMap.get(m).take();
-	}
-
+        synchronized (m) {
+            if (!ServiceMap.containsKey(m))
+                throw new IllegalStateException();
+            return ServiceMap.get(m).take();
+        }
+    }
 
 }

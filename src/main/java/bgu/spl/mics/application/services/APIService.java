@@ -3,7 +3,6 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
 import bgu.spl.mics.application.messages.OrderBookEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
@@ -61,7 +60,7 @@ public class APIService extends MicroService{
 										fut.getTick(),customer.getAvailableCreditAmount()));
 								while (!f.isDone()) {
 									try {
-										wait();
+										wait(30);
 									} catch (InterruptedException e1) {
 										e1.printStackTrace();
 									}
@@ -74,6 +73,7 @@ public class APIService extends MicroService{
 				e.shutdown();
 				while (j>0){
 					try {
+						System.out.println("Got to: "+j);
 						OrderReceipt orderReceipt=cService.take().get();
 						if(orderReceipt.getPrice()!=-1)
 							customer.addReceipt(orderReceipt);

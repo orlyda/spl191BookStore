@@ -38,7 +38,6 @@ public class SellingService extends MicroService{
 	@Override
 	protected void initialize() {
 		this.subscribeBroadcast(TickBroadcast.class, c -> currentTick=c.getTick());
-
 		Callback<OrderBookEvent> orderBookEventCallback= o -> {
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
 					o.getBookTitle(),o.getTick(),currentTick);

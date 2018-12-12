@@ -1,10 +1,8 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Callback;
-import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
-import bgu.spl.mics.application.messages.CheckEnoughMoneyEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.MoneyStatus;

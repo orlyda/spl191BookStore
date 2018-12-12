@@ -25,10 +25,10 @@
         "name": "Bruria",
         "address": "NewYork 123",
         "distance":33,
-        "creditCard":{"number":67890,"amount":88},
+        "creditCard":{"number":67890,"amount":5000},
         "orderSchedule": [
             {"bookTitle": "Harry Poter", "tick": 3},
-            {"bookTitle": "The Hunger Games", "tick": 2}
+            {"bookTitle": "The Hunger Games", "tick": 3}
           ]
       },
     {
@@ -36,7 +36,7 @@
         "name": "Shraga",
         "address": "BeerSheva 3333",
         "distance":12,
-         "creditCard":{"number":453536,"amount":220},
+         "creditCard":{"number":453536,"amount":2200},
     "orderSchedule": [
         {"bookTitle": "The Hunger Games", "tick": 12}
     ]
