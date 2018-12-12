@@ -53,15 +53,12 @@ public class APIService extends MicroService{
 				synchronized (futureOrders){//take order from the list in the correct tick
 					// and send event that handle the order
 					while((!futureOrders.isEmpty()) && futureOrders.get(0).getTick()==t.getTick()) {
-						System.out.println("y");
 						FutureOrder fut= futureOrders.remove(0);
 						cService.submit(new Callable<OrderReceipt>() {
 							@Override
 							public synchronized OrderReceipt call(){
 								Future<OrderReceipt> f = sendEvent(new OrderBookEvent(customer, fut.getBookTitle(),
 										fut.getTick(),customer.getAvailableCreditAmount()));
-								System.out.println("z");
-
 								while (!f.isDone()) {
 									try {
 										wait();
