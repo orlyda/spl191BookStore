@@ -177,6 +177,7 @@ public abstract class MicroService implements Runnable {
         System.out.println(this.getClass()+" Terminated");
        messageBus.unregister(this);
         ServiceInitCheck.DecreaseFinished();
+        terminate();
     }
 
 

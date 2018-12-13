@@ -33,15 +33,15 @@ public class TimeService extends MicroService {
 		timer= new Timer();
 		time = new AtomicInteger(1);
 		this.subscribeBroadcast(TerminateBroadcast.class, c-> terminate());
-		timer.schedule(new timetask(),0, speed);
+		timer.schedule(new timetask(),0,speed);
 	}
 
 	class timetask extends TimerTask{
         public void run(){
-            if(time.get()<duration) {
+            if(time.get()<=duration) {
                 sendBroadcast(new TickBroadcast(time.getAndIncrement()));
             }
-            else if(time.get()==duration) {
+            else if(time.get()>duration) {
 				sendBroadcast(new TerminateBroadcast());
 				cancel();
 			}

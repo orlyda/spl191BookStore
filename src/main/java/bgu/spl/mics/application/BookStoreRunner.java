@@ -60,7 +60,6 @@ public class BookStoreRunner {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        System.out.println("Lindsey Lohan");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
@@ -245,7 +244,6 @@ public class BookStoreRunner {
                 try {
                     Thread.sleep(waitingTime);
                 }catch (InterruptedException e){e.printStackTrace();}
-                System.out.println("V");
         }
     }
 }

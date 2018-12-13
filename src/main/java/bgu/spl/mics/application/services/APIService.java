@@ -45,7 +45,7 @@ public class APIService extends MicroService{
 	}
 
 	@Override
-	protected void initialize() {
+	protected void initialize(){
 		Callback<TickBroadcast> tickCallback= t -> {
 			if(futureOrders.size()>0){
 				ExecutorService e=Executors.newFixedThreadPool(futureOrders.size());

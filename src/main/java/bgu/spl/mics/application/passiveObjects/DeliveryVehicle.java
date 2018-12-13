@@ -39,9 +39,9 @@ public class DeliveryVehicle {
      * @param address	The address of the customer.
      * @param distance	The distance from the store to the customer.
      */
-	public void deliver(String address, int distance) {
+	public synchronized void deliver(String address, int distance) {
 		try {
-			Thread.sleep(distance / speed);
+			wait(distance / speed);
 		}
 		catch (InterruptedException e){}
 	}
