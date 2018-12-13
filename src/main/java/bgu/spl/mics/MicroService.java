@@ -105,8 +105,9 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        this.result.put(e,messageBus.sendEvent(e));
-        return this.result.get(e);
+        Future<T>  f = messageBus.sendEvent(e);
+        this.result.put(e,f);
+        return f;
     }
 
     /**
@@ -155,7 +156,7 @@ public abstract class MicroService implements Runnable {
     }
 
     /**
-     * The entry point of the micro-service. TODO: you must complete this code
+     * The entry point of the micro-service.
      * otherwise you will end up in an infinite loop.
      */
 
@@ -163,7 +164,7 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         messageBus.register(this);
         initialize();
-        ServiceInitCheck.Decrease();
+        ServiceInitCheck.DecreaseInit();
         while (!terminated) {
             try {
                 if(!callbackMap.isEmpty()) {
@@ -173,7 +174,9 @@ public abstract class MicroService implements Runnable {
             }
             catch (InterruptedException e){}
         }
+        System.out.println(this.getClass()+" Terminated");
        messageBus.unregister(this);
+        ServiceInitCheck.DecreaseFinished();
     }
 
 

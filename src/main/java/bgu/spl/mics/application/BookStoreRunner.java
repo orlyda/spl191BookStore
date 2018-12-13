@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BookStoreRunner {
 
+    public static final long waitingTime = 50;
     public static void main(String[] args) {
         MessageBus messageBus= MessageBusImpl.getInstance();
         //create the inventory, and load the books to it.
@@ -32,7 +33,7 @@ public class BookStoreRunner {
         inventory.load(inventoryInfos);
         //create the vehicles
         DeliveryVehicle[] vehicles=getResources(inputFile);
-
+        ResourcesHolder.getInstance().load(vehicles);
         Object[] services=getServices(inputFile);
 
         Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);
@@ -41,7 +42,7 @@ public class BookStoreRunner {
         int inventoryNum=(Integer)services[2];
         int logisticsNum=(Integer)services[3];
         int resourceNum=(Integer)services[4];
-        ServiceInitCheck.SetInitCheck(sellingNum+inventoryNum+logisticsNum+resourceNum);
+        ServiceInitCheck.SetInitCheck(sellingNum+inventoryNum+logisticsNum+resourceNum+customers.length);
         int[] time=(int[])services[0];
         ExecutorService e = Executors.newFixedThreadPool
                 (customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum+1);
@@ -53,6 +54,14 @@ public class BookStoreRunner {
         try {
             e.awaitTermination(time[0]*time[1], TimeUnit.MILLISECONDS);
         } catch (InterruptedException e1) {}
+        Thread check = new Thread(new FakeJoin());
+        check.start();
+        try {
+            check.join();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        System.out.println("Lindsey Lohan");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
@@ -61,7 +70,7 @@ public class BookStoreRunner {
     public static void MakeThreadsReady(){
         while (!ServiceInitCheck.ready()){
             try {
-                Thread.sleep(30);
+                Thread.sleep(waitingTime);
             } catch (InterruptedException ignored) {
             }
         }
@@ -87,13 +96,15 @@ public class BookStoreRunner {
             InventoryService in=new InventoryService(String.valueOf(i));
             e.execute(in);
         }
+        for(int i=0;i<resourceNum;i++){
+            ResourceService r=new ResourceService(String.valueOf(i));
+            e.execute(r);
+        }
         for(int i=0;i<logisticsNum;i++){
             LogisticsService l=new LogisticsService(String.valueOf(i));
             e.execute(l);
         }
-        for(int i=0;i<resourceNum;i++){
-            ResourceService r=new ResourceService(String.valueOf(i));
-        }
+
     }
 
     public static BookInventoryInfo[] getInventory(String inputFile){
@@ -223,7 +234,17 @@ public class BookStoreRunner {
         }
         return arr;
     }
+     protected static class FakeJoin implements Runnable{
 
+        @Override
+        public void run(){
+            while(!ServiceInitCheck.finished())
+                try {
+                    Thread.sleep(waitingTime);
+                }catch (InterruptedException e){e.printStackTrace();}
+                System.out.println("V");
+        }
+    }
 }
 
 /*        Customer[] Customers;

@@ -60,7 +60,7 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void complete(Event<T> e, T result) {
         synchronized (e) {
             while(FutureMap.get(e)==null)
-                try{wait();}
+                try{wait(50);}
                 catch (Exception ignored){}
             Future<T> f = FutureMap.get(e);
             f.resolve(result);
@@ -85,6 +85,7 @@ public class MessageBusImpl implements MessageBus {
            if(EventMap.get(e.getClass()).isEmpty())
                return null;
            else {
+               synchronized (e) {
                BlockingQueue<MicroService> queue = EventMap.get(e.getClass());
                MicroService m = queue.poll();
                try {
@@ -92,15 +93,16 @@ public class MessageBusImpl implements MessageBus {
                } catch (InterruptedException e1) {
                }
                queue.add(m);
-               synchronized (e) {
+
                    Future<T> f = new Future<>();
                    FutureMap.put(e, f);
                    return f;
                }
            }
         }
+
 		else
-            return null;
+		    return null;
 	}
 
 	@Override

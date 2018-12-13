@@ -65,7 +65,7 @@ public class SellingService extends MicroService{
 			}
 		};
 		this.subscribeEvent(OrderBookEvent.class,orderBookEventCallback);
-        this.subscribeBroadcast(TerminateBroadcast.class, c->{terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
 	}
 
 }

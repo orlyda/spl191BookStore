@@ -75,6 +75,7 @@ public class ResourcesHolder {
 		this.sem=new Semaphore(vehicles.length);
 		for (int i=0;i<vehicles.length;i++) {
 			this.vehicles.getAndSet(i, vehicles[i]);
+			this.acquired[i]=new AtomicBoolean();
 			this.acquired[i].set(false);
 		}
 	}

@@ -1,7 +1,7 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.Future;
 import bgu.spl.mics.Callback;
+import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.GetCarEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
@@ -26,12 +26,12 @@ public class ResourceService extends MicroService{
 
 	@Override
 	protected void initialize() {
-        Callback<GetCarEvent> getCarEventCallback =(c) ->  {
+        Callback<GetCarEvent> getCarEventCallback =c->  {
           Future<DeliveryVehicle> f = resourcesHolderRef.acquireVehicle();
           this.complete(c,f.get());
         };
         this.subscribeEvent(GetCarEvent.class,getCarEventCallback);
-		this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c->this.terminate());
 	}
 
 }

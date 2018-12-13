@@ -47,6 +47,6 @@ public class InventoryService extends MicroService{
 			}
 		};
 		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
-        this.subscribeBroadcast(TerminateBroadcast.class, c->{this.terminate();});
+		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
 	}
 }
