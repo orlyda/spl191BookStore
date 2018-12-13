@@ -4,7 +4,7 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
-import bgu.spl.mics.application.messages.OrderBookEvent;
+import bgu.spl.mics.application.messages.BookOrderEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.MoneyRegister;
@@ -40,7 +40,7 @@ public class SellingService extends MicroService{
 	@Override
 	protected void initialize() {
 		this.subscribeBroadcast(TickBroadcast.class, c -> currentTick=c.getTick());
-		Callback<OrderBookEvent> orderBookEventCallback= o -> {
+		Callback<BookOrderEvent> orderBookEventCallback= o -> {
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
 					o.getBookTitle(),o.getTick(),currentTick);
 
@@ -66,7 +66,7 @@ public class SellingService extends MicroService{
 				complete(o, receipt);
 			}
 		};
-		this.subscribeEvent(OrderBookEvent.class,orderBookEventCallback);
+		this.subscribeEvent(BookOrderEvent.class,orderBookEventCallback);
 		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
 	}
 

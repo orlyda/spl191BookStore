@@ -5,7 +5,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Pair;
 import bgu.spl.mics.application.messages.DeliveryEvent;
-import bgu.spl.mics.application.messages.OrderBookEvent;
+import bgu.spl.mics.application.messages.BookOrderEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.*;
@@ -80,7 +80,7 @@ public class APIService extends MicroService{
 				cService.submit(new Callable<OrderReceipt>() {
 					@Override
 					public synchronized OrderReceipt call(){
-						Future<OrderReceipt> f = sendEvent(new OrderBookEvent(customer, fut.getBookTitle(),
+						Future<OrderReceipt> f = sendEvent(new BookOrderEvent(customer, fut.getBookTitle(),
 								fut.getTick(),customer.getAvailableCreditAmount()));
 						while (!f.isDone()) {
 							try {//wait until the order process is completed
