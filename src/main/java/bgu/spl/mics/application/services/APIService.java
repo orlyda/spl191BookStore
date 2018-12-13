@@ -74,9 +74,10 @@ public class APIService extends MicroService{
 				while (j>0){
 					try {
 						OrderReceipt orderReceipt=cService.take().get();
-						if(orderReceipt.getPrice()!=-1)
+						if(orderReceipt.getPrice()!=-1){
 							customer.addReceipt(orderReceipt);
-						sendEvent(new DeliveryEvent(customer.getAddress(),customer.getDistance()));
+							sendEvent(new DeliveryEvent(customer.getAddress(),customer.getDistance()));
+						}
 						System.out.println("order completed");
 						j--;
 					} catch (Exception e1) { e1.printStackTrace(); } }}

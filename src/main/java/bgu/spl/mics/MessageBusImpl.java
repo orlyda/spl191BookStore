@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class MessageBusImpl implements MessageBus {
     private HashMap<MicroService, BlockingQueue<Message>> ServiceMap;
-    private HashMap<Class <? extends Broadcast>, List<MicroService>> BroadcastMap;
+    private HashMap<Class <? extends Broadcast>, CopyOnWriteArrayList<MicroService>> BroadcastMap;
     private HashMap<Class<? extends Message> ,BlockingQueue<MicroService>> EventMap;
     private HashMap<Event,Future> FutureMap;
     private HashMap<MicroService,List<Class<? extends Event>>> EventSubscribe;
@@ -49,7 +50,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeBroadcast(Class <? extends Broadcast> type, MicroService m) {
 	    if(!BroadcastMap.containsKey(type))
-	        BroadcastMap.put(type,new LinkedList<>());
+	        BroadcastMap.put(type,new CopyOnWriteArrayList<>());
         if(!BroadcastMap.get(type).contains(m)) {
             BroadSubscribe.get(m).add(type);
 			BroadcastMap.get(type).add(m);

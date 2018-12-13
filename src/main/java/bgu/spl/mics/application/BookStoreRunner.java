@@ -1,6 +1,4 @@
 package bgu.spl.mics.application;
-import bgu.spl.mics.MessageBus;
-import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
 import org.json.simple.JSONArray;
@@ -15,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /** This is the Main class of the application. You should parse the input file, 
  * create the different instances of the objects, and run the system.
@@ -25,7 +22,6 @@ public class BookStoreRunner {
 
     public static final long waitingTime = 50;
     public static void main(String[] args) {
-        MessageBus messageBus= MessageBusImpl.getInstance();
         //create the inventory, and load the books to it.
         String inputFile = args[0];
         BookInventoryInfo[] inventoryInfos=getInventory(inputFile);
@@ -49,11 +45,14 @@ public class BookStoreRunner {
         ActivateThreads(e,sellingNum,inventoryNum,logisticsNum,resourceNum,customers);
 
         TimeService t=new TimeService("TimeService",time[0],time[1]);
-        MakeThreadsReady();
-        e.execute(t);
+        Thread checkReady = new Thread(new CheckThreadsReady());
+        checkReady.start();
         try {
-            e.awaitTermination(time[0]*time[1], TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e1) {}
+            checkReady.join();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        e.execute(t);
         Thread check = new Thread(new FakeJoin());
         check.start();
         try {
@@ -67,14 +66,18 @@ public class BookStoreRunner {
             Customers[i]= customers[i].getFirst();
         CreateOutputs(args,Customers);
     }
-    public static void MakeThreadsReady(){
-        while (!ServiceInitCheck.ready()){
-            try {
-                Thread.sleep(waitingTime);
-            } catch (InterruptedException ignored) {
+    public static class CheckThreadsReady implements Runnable{
+        @Override
+        public void run() {
+            while (!ServiceInitCheck.ready()){
+                try {
+                    Thread.sleep(waitingTime);
+                } catch (InterruptedException ignored) {
+                }
             }
         }
     }
+
     public static void CreateOutputs(String[] args,Customer[] Customers){
         printCustomers(args[1],Customers);
         Inventory.getInstance().printInventoryToFile(args[2]);

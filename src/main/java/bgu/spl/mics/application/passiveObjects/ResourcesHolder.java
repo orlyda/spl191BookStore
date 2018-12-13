@@ -58,7 +58,7 @@ public class ResourcesHolder {
 
  	private int findVehicle(DeliveryVehicle vehicle){
 		for(int i = 0;i<this.vehicles.length();i++){
-			if(this.vehicles.equals(vehicle))
+			if(this.vehicles.get(i)==vehicle)
 				return i;
 		}
 		return -1;
@@ -92,13 +92,15 @@ public class ResourcesHolder {
 			catch (InterruptedException e){}
 			boolean found = false;
 			int i =0;
-			while (!found){
-				if(!acquired[i].get()){
-					acquired[i].set(true);
-					found=true;
-					f.resolve(vehicles.get(i));
+			synchronized (ResourcesHolder.getInstance()){
+				while (!found){
+					if(!acquired[i].get()){
+						acquired[i].set(true);
+						found=true;
+						f.resolve(vehicles.get(i));
+					}
+					i++;
 				}
-				i++;
 			}
 		}
 	}

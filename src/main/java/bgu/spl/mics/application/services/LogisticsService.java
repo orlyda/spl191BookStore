@@ -5,6 +5,7 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DeliveryEvent;
 import bgu.spl.mics.application.messages.GetCarEvent;
+import bgu.spl.mics.application.messages.ReleaseCarEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 
@@ -34,6 +35,8 @@ public class LogisticsService extends MicroService {
 			}
 			f.get().deliver(c.getAddress(),c.getSpeed());
 			System.out.println("Delivered");
+			sendEvent(new ReleaseCarEvent(f.get()));
+			System.out.println("Released");
 		};
 		this.subscribeEvent(DeliveryEvent.class,DeliveryCallback);
 		this.subscribeBroadcast(TerminateBroadcast.class, c->this.terminate());
