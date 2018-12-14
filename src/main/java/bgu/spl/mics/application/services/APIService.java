@@ -81,10 +81,11 @@ public class APIService extends MicroService{
 					@Override
 					public synchronized OrderReceipt call(){
 						Future<OrderReceipt> f = sendEvent(new BookOrderEvent(customer, fut.getBookTitle(),
-								fut.getTick(),customer.getAvailableCreditAmount()));
+								fut.getTick(),customer.getAvailableCreditAmount())).get();
 						while (!f.isDone()) {
 							try {//wait until the order process is completed
 								wait(waitingTime);
+								System.out.println("hello2");
 							} catch (InterruptedException e1) {
 								e1.printStackTrace();
 							}

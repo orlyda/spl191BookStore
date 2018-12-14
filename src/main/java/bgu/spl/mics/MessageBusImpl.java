@@ -76,7 +76,7 @@ public class MessageBusImpl implements MessageBus {
             for (MicroService m: services) {
                 try {
                     ServiceMap.get(m).put((Message) b);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {e.printStackTrace();}
             }
         }
     }
@@ -93,6 +93,7 @@ public class MessageBusImpl implements MessageBus {
                try {
                    ServiceMap.get(m).put(e);
                } catch (InterruptedException e1) {
+                   e1.printStackTrace();
                }
                queue.add(m);
 

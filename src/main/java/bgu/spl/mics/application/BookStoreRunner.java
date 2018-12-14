@@ -53,7 +53,6 @@ public class BookStoreRunner {
             e1.printStackTrace();
         }
         e.execute(t);
-
         Thread check = new Thread(new FakeJoin());
         check.start();
         try {
@@ -61,15 +60,11 @@ public class BookStoreRunner {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        e.shutdownNow();
-        System.out.println(e.isShutdown());
-        System.out.println("V");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
         CreateOutputs(args,Customers);
     }
-
     public static class CheckThreadsReady implements Runnable{
         @Override
         public void run() {
@@ -231,18 +226,6 @@ public class BookStoreRunner {
             i.printStackTrace();
         }
     }
-    public static void printMoneyRegister(String filename){
-        try {
-            FileOutputStream fileOut =
-                    new FileOutputStream(filename);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(MoneyRegister.getInstance());
-            out.close();
-            fileOut.close();
-        } catch (IOException i) {
-            i.printStackTrace();
-        }
-    }
     public ArrayList<FutureOrder> toList(JSONArray ary){
         ArrayList<FutureOrder> arr = new ArrayList<>();
         for(int i=0; i<ary.size();i++){
@@ -261,6 +244,18 @@ public class BookStoreRunner {
                 try {
                     Thread.sleep(waitingTime);
                 }catch (InterruptedException e){e.printStackTrace();}
+        }
+    }
+    public static void printMoneyRegister(String filename) {
+        try {
+            FileOutputStream fileOut =
+                    new FileOutputStream(filename);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(MoneyRegister.getInstance());
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
         }
     }
 }

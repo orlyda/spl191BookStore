@@ -43,6 +43,7 @@ public class DeliveryVehicle {
 		try {
 			long time =distance / speed;
 			Thread.sleep(time);
+			System.out.println(address);
 		}
 		catch (InterruptedException e){}
 	}

@@ -41,6 +41,8 @@ public class SellingService extends MicroService{
 	protected void initialize() {
 		this.subscribeBroadcast(TickBroadcast.class, c -> currentTick=c.getTick());
 		Callback<BookOrderEvent> orderBookEventCallback= o -> {
+			Future<OrderReceipt> fr = new Future<>();
+			complete(o,fr);
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
 					o.getBookTitle(),o.getTick(),currentTick);
 
@@ -49,6 +51,7 @@ public class SellingService extends MicroService{
 			synchronized (futureStatus) {
 				while (!futureStatus.isDone()) {
 					try {
+						System.out.println("Hello1");
 						futureStatus.wait(waitingTime);
 					} catch (InterruptedException e) {}
 				}
@@ -58,12 +61,12 @@ public class SellingService extends MicroService{
 				receipt.setPrice(futureStatus.get().getBookPrice());
 				receipt.setIssuedTick(currentTick);
 				mr.get().file(receipt);
-				complete(o,receipt);
+				fr.resolve(receipt);
 			}
 			else {
 				receipt.setPrice(-1);
 				receipt.setIssuedTick(currentTick);
-				complete(o, receipt);
+				fr.resolve(receipt);
 			}
 		};
 		this.subscribeEvent(BookOrderEvent.class,orderBookEventCallback);

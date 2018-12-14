@@ -19,6 +19,7 @@ import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class ResourceService extends MicroService{
+	private static int waitingTime =30;
 	private ResourcesHolder resourcesHolderRef;
 	public ResourceService(String name){
 		super(name);
@@ -29,10 +30,15 @@ public class ResourceService extends MicroService{
 	protected void initialize() {
         Callback<GetCarEvent> getCarEventCallback =c->  {
           Future<DeliveryVehicle> f = resourcesHolderRef.acquireVehicle();
-          this.complete(c,f.get());
+          this.complete(c,f);
         };
         Callback<ReleaseCarEvent> releaseCarEventCallback = c->{
-        	resourcesHolderRef.releaseVehicle(c.getDeliveryVehicle());
+        	Future<DeliveryVehicle> f = c.getDeliveryVehicle();
+        	while(!f.isDone())
+        		try{Thread.sleep(waitingTime);} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			resourcesHolderRef.releaseVehicle(f.get());
         complete(c,null);};
         this.subscribeEvent(ReleaseCarEvent.class,releaseCarEventCallback);
         this.subscribeEvent(GetCarEvent.class,getCarEventCallback);

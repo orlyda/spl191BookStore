@@ -19,7 +19,7 @@ import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class LogisticsService extends MicroService {
-	public static final long waitingTime = 50;
+	public static final long waitingTime = 20;
 	public LogisticsService(String name) {
 		super(name);
 	}
@@ -27,15 +27,21 @@ public class LogisticsService extends MicroService {
 	@Override
 	protected void initialize(){
 		Callback<DeliveryEvent> DeliveryCallback = c -> {
-			Future<DeliveryVehicle> f = sendEvent(new GetCarEvent());
+			Future<Future<DeliveryVehicle>> fd = sendEvent(new GetCarEvent());
+			Future<DeliveryVehicle>f=fd.get();
+			complete(c,null);
 			while (!f.isDone()) {
 				try {
 					Thread.sleep(waitingTime);
+					System.out.println("hello3");
 				} catch (InterruptedException e) { e.printStackTrace();}
 			}
+			System.out.println(this.getName()+"Her");
+			Future<DeliveryVehicle> RelVehicle = new Future();
+			sendEvent(new ReleaseCarEvent(RelVehicle));
 			f.get().deliver(c.getAddress(),c.getSpeed());
 			System.out.println("Delivered");
-			sendEvent(new ReleaseCarEvent(f.get()));
+			RelVehicle.resolve(f.get());
 			System.out.println("Released");
 		};
 		this.subscribeEvent(DeliveryEvent.class,DeliveryCallback);
