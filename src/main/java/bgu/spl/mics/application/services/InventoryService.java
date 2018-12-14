@@ -37,6 +37,7 @@ public class InventoryService extends MicroService{
 				if (c.getAvailableMoney()>=price) {
 					//the book available and there is enough money
 					complete(c, new MoneyStatus(price,true));
+					inventory.get().take(c.getBookTitle());
 				}
 				else {
 					complete(c, new MoneyStatus(price, false));

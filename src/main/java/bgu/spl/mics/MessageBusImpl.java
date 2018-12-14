@@ -65,6 +65,7 @@ public class MessageBusImpl implements MessageBus {
                 catch (Exception ignored){}
             Future<T> f = FutureMap.get(e);
             f.resolve(result);
+            FutureMap.remove(e);
         }
 	}
 
@@ -86,7 +87,7 @@ public class MessageBusImpl implements MessageBus {
            if(EventMap.get(e.getClass()).isEmpty())
                return null;
            else {
-               synchronized (e) {
+               synchronized (e){
                BlockingQueue<MicroService> queue = EventMap.get(e.getClass());
                MicroService m = queue.poll();
                try {
@@ -121,11 +122,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
     public void unregister(MicroService m){
+        for(Class<? extends Event> c : EventSubscribe.get(m)){
+            synchronized (c) {
+                EventMap.get(c).remove(m);
+            }
+        }
         for(Class<? extends Broadcast> c : BroadSubscribe.get(m)){
             BroadcastMap.get(c).remove(m);
-        }
-        for(Class<? extends Event> c : EventSubscribe.get(m)){
-            EventMap.get(c).remove(m);
         }
         EventSubscribe.remove(m);
         BroadSubscribe.remove(m);

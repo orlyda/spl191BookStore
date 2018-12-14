@@ -83,17 +83,6 @@ public class MoneyRegister implements Serializable {
 			i.printStackTrace();
 		}
 	}
-	public void printMoneyRegister(String filename){
-		try {
-			FileOutputStream fileOut =
-					new FileOutputStream(filename);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(this);
-			out.close();
-			fileOut.close();
-		} catch (IOException i) {
-			i.printStackTrace();
-		}
-	}
+
 
 }

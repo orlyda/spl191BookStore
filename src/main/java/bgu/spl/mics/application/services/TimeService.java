@@ -32,7 +32,9 @@ public class TimeService extends MicroService {
 	protected void initialize() {
 		timer= new Timer();
 		time = new AtomicInteger(1);
-		this.subscribeBroadcast(TerminateBroadcast.class, c-> terminate());
+		this.subscribeBroadcast(TerminateBroadcast.class, c-> {
+			timer.purge();
+			terminate();});
 		timer.schedule(new timetask(),0,speed);
 	}
 

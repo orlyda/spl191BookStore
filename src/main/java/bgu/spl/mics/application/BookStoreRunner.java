@@ -53,6 +53,7 @@ public class BookStoreRunner {
             e1.printStackTrace();
         }
         e.execute(t);
+
         Thread check = new Thread(new FakeJoin());
         check.start();
         try {
@@ -60,11 +61,15 @@ public class BookStoreRunner {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
+        e.shutdownNow();
+        System.out.println(e.isShutdown());
+        System.out.println("V");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
         CreateOutputs(args,Customers);
     }
+
     public static class CheckThreadsReady implements Runnable{
         @Override
         public void run() {
@@ -81,7 +86,7 @@ public class BookStoreRunner {
         printCustomers(args[1],Customers);
         Inventory.getInstance().printInventoryToFile(args[2]);
         MoneyRegister.getInstance().printOrderReceipts(args[3]);
-        MoneyRegister.getInstance().printMoneyRegister(args[4]);
+        printMoneyRegister(args[4]);
     }
 
     public static void ActivateThreads(ExecutorService e, int sellingNum,int inventoryNum
@@ -220,6 +225,18 @@ public class BookStoreRunner {
                     new FileOutputStream(filename);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(map);
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+    public static void printMoneyRegister(String filename){
+        try {
+            FileOutputStream fileOut =
+                    new FileOutputStream(filename);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(MoneyRegister.getInstance());
             out.close();
             fileOut.close();
         } catch (IOException i) {
