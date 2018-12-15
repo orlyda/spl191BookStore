@@ -57,9 +57,12 @@ public class APIService extends MicroService{
 						OrderReceipt orderReceipt=cService.take().get();
 						if(orderReceipt.getPrice()!=-1){//the book was in stock and the customer had enough money
 							customer.addReceipt(orderReceipt);
+							System.out.println("order completed "+orderReceipt.getBookTitle());
 							sendEvent(new DeliveryEvent(customer.getAddress(),customer.getDistance()));
 						}
-						//System.out.println("order completed");
+						else
+							System.out.println("order not completed "+orderReceipt.getBookTitle());
+
 						j--;
 					} catch (Exception e1) { e1.printStackTrace(); } }}
 		};
@@ -85,7 +88,7 @@ public class APIService extends MicroService{
 						while (!f.isDone()) {
 							try {//wait until the order process is completed
 								wait(waitingTime);
-								System.out.println("hello2");
+								//System.out.println("hello2");
 							} catch (InterruptedException e1) {
 								e1.printStackTrace();
 							}

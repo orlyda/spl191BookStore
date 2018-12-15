@@ -23,9 +23,7 @@ public class BookStoreRunner {
         System.out.println("Fish And Chips");
         //create the inventory, and load the books to it.
         LoadInfo(args[0]);
-
         Object[] services=getServices(args[0]);
-
         Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);
         //the number of microService from each type
         int sellingNum=(Integer)services[1];
@@ -265,5 +263,7 @@ public class BookStoreRunner {
             i.printStackTrace();
         }
     }
+
+
 }
 

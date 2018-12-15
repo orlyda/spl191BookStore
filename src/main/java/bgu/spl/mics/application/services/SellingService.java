@@ -3,12 +3,8 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
-import bgu.spl.mics.application.messages.BookOrderEvent;
-import bgu.spl.mics.application.messages.TerminateBroadcast;
-import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.MoneyRegister;
-import bgu.spl.mics.application.passiveObjects.MoneyStatus;
 import bgu.spl.mics.application.passiveObjects.OrderReceipt;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,31 +42,39 @@ public class SellingService extends MicroService{
 			OrderReceipt receipt=new OrderReceipt(1,this.getName(),o.getCustomer().getId(),
 					o.getBookTitle(),o.getTick(),currentTick);
 
-			CheckAvailabilityEvent event=new CheckAvailabilityEvent(o.getBookTitle(),o.getAvailableMoney());
-			Future<MoneyStatus> futureStatus= sendEvent(event);
-			synchronized (futureStatus) {
-				while (!futureStatus.isDone()) {
-					try {
-						futureStatus.wait(waitingTime);
-						System.out.println("Hello");
-					} catch (InterruptedException e) {}
+			CheckAvailabilityEvent event=new CheckAvailabilityEvent(o.getBookTitle());
+			Future<Integer> futureStatus= sendEvent(event);//get the book price, if the book out of stock, get -1
+			futureStatus=waitUntilDone(futureStatus);
+			synchronized (o.getCustomer()) {//check if the customer have enough money
+				if (futureStatus.get() != -1 && futureStatus.get() <= o.getCustomer().getAvailableCreditAmount()) {
+					TakeBookEvent bookEvent = new TakeBookEvent(o.getBookTitle());
+					Future<Boolean> futureBook = sendEvent(bookEvent);
+					futureBook = waitUntilDone(futureBook);
+					if (futureBook.get()) {
+						mr.get().chargeCreditCard(o.getCustomer(), futureStatus.get());
+						receipt.setPrice(futureStatus.get());
+						receipt.setIssuedTick(currentTick);
+						mr.get().file(receipt);
+					}
+
 				}
-			}
-			if(futureStatus.get().isEnoughMoney()){
-				mr.get().chargeCreditCard(o.getCustomer(),futureStatus.get().getBookPrice());
-				receipt.setPrice(futureStatus.get().getBookPrice());
-				receipt.setIssuedTick(currentTick);
-				mr.get().file(receipt);
-				fr.resolve(receipt);
-			}
-			else {
-				receipt.setPrice(-1);
-				receipt.setIssuedTick(currentTick);
 				fr.resolve(receipt);
 			}
 		};
 		this.subscribeEvent(BookOrderEvent.class,orderBookEventCallback);
 		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
+	}
+
+	private Future waitUntilDone(Future f){
+		synchronized (f){
+			while (!f.isDone()){
+				try {
+					f.wait(waitingTime);
+				}
+				catch (InterruptedException e){}
+			}
+		}
+		return f;
 	}
 
 }

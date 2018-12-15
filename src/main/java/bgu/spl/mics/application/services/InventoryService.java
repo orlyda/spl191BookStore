@@ -3,9 +3,10 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
+import bgu.spl.mics.application.messages.TakeBookEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
-import bgu.spl.mics.application.passiveObjects.MoneyStatus;
+import bgu.spl.mics.application.passiveObjects.OrderResult;
 
 import java.util.concurrent.atomic.AtomicReference;
 /**
@@ -33,21 +34,20 @@ public class InventoryService extends MicroService{
 	protected void initialize() {
 		Callback<CheckAvailabilityEvent> checkCallback= c -> {
 			int price=inventory.get().checkAvailabiltyAndGetPrice(c.getBookTitle()); //the book price
-			if(price!=-1){//the book is available
-				if (c.getAvailableMoney()>=price) {
-					//the book available and there is enough money
-					complete(c, new MoneyStatus(price,true));
-					inventory.get().take(c.getBookTitle());
-				}
-				else {
-					complete(c, new MoneyStatus(price, false));
-				}
-			}
-			else{//the book is not in stock
-				complete(c, new MoneyStatus(price,false));
-			}
+			complete(c,price);
 		};
 		this.subscribeEvent(CheckAvailabilityEvent.class,checkCallback);
+		this.subscribeEvent(TakeBookEvent.class, new Callback<TakeBookEvent>() {
+			@Override
+			public void call(TakeBookEvent c) {//check if the book is available to take, if so, takes the book
+				synchronized (c.getBookTitle()){
+				if(inventory.get().take(c.getBookTitle())== OrderResult.SUCCESSFULLY_TAKEN)
+				{
+					complete(c,true);
+				}
+				else complete(c,false);
+			}}
+		});
 		this.subscribeBroadcast(TerminateBroadcast.class, c-> this.terminate());
 	}
 }

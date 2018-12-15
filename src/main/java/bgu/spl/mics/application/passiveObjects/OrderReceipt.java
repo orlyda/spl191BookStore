@@ -29,6 +29,7 @@ public class OrderReceipt implements Serializable{
 		this.orderTick=orderTick;
 		this.processTick=processTick;
 		this.seller=s;
+		price=-1;
 	}
 
 	public void setIssuedTick(int issuedTick) {

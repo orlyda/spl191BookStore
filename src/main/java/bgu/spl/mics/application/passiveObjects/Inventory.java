@@ -50,7 +50,7 @@ public class Inventory {
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		for (int i=0;i<=booksInfo.length();i++){
+		for (int i=0;i<booksInfo.length();i++){
 			if(booksInfo.get(i).getBookTitle().equals(book) &&booksInfo.get(i).decreaseAmount())
 				return OrderResult.SUCCESSFULLY_TAKEN;
 		}
@@ -66,7 +66,7 @@ public class Inventory {
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
-		for (int i=0;i<=booksInfo.length();i++){
+		for (int i=0;i<booksInfo.length();i++){
 			if(booksInfo.get(i).getBookTitle().equals(book)&&booksInfo.get(i).getAmountInInventory()>0)
 				return booksInfo.get(i).getPrice();
 		}

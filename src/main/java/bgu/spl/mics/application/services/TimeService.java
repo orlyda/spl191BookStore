@@ -41,12 +41,11 @@ public class TimeService extends MicroService {
 
 	class timetask extends TimerTask{
 		public void run(){
-			if(time.get()<=duration) {
+			if(time.get()<duration) {
 				sendBroadcast(new TickBroadcast(time.getAndIncrement()));
 			}
-			else if(time.get()>duration) {
+			else if(time.get()>=duration) {
 				sendBroadcast(new TerminateBroadcast());
-
 			}
 		}
 	}
