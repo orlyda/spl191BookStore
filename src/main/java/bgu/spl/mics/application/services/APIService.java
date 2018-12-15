@@ -25,7 +25,7 @@ import java.util.concurrent.*;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class APIService extends MicroService{
-	private static final long waitingTime = 50;
+	private static final long waitingTime = 20;
 	private final Customer customer;
 	private ArrayList<FutureOrder> futureOrders;
 	//private List<Future<OrderReceipt>> futureList;

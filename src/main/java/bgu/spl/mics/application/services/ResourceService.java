@@ -19,7 +19,7 @@ import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class ResourceService extends MicroService{
-	private static int waitingTime =30;
+	private static int waitingTime =20;
 	private ResourcesHolder resourcesHolderRef;
 	public ResourceService(String name){
 		super(name);

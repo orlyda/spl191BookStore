@@ -33,16 +33,12 @@ public class LogisticsService extends MicroService {
 			while (!f.isDone()) {
 				try {
 					Thread.sleep(waitingTime);
-					System.out.println("hello3");
 				} catch (InterruptedException e) { e.printStackTrace();}
 			}
-			System.out.println(this.getName()+"Her");
 			Future<DeliveryVehicle> RelVehicle = new Future();
 			sendEvent(new ReleaseCarEvent(RelVehicle));
 			f.get().deliver(c.getAddress(),c.getSpeed());
-			System.out.println("Delivered");
 			RelVehicle.resolve(f.get());
-			System.out.println("Released");
 		};
 		this.subscribeEvent(DeliveryEvent.class,DeliveryCallback);
 		this.subscribeBroadcast(TerminateBroadcast.class, c->this.terminate());

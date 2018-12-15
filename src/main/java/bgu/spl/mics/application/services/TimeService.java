@@ -34,20 +34,21 @@ public class TimeService extends MicroService {
 		time = new AtomicInteger(1);
 		this.subscribeBroadcast(TerminateBroadcast.class, c-> {
 			timer.purge();
+			timer.cancel();
 			terminate();});
 		timer.schedule(new timetask(),0,speed);
 	}
 
 	class timetask extends TimerTask{
-        public void run(){
-            if(time.get()<=duration) {
-                sendBroadcast(new TickBroadcast(time.getAndIncrement()));
-            }
-            else if(time.get()>duration) {
-				sendBroadcast(new TerminateBroadcast());
-				cancel();
+		public void run(){
+			if(time.get()<=duration) {
+				sendBroadcast(new TickBroadcast(time.getAndIncrement()));
 			}
-	    }
-    }
+			else if(time.get()>duration) {
+				sendBroadcast(new TerminateBroadcast());
+
+			}
+		}
+	}
 }
 

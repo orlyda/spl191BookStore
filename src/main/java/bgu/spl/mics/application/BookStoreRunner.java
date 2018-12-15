@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /** This is the Main class of the application. You should parse the input file, 
  * create the different instances of the objects, and run the system.
@@ -23,14 +21,9 @@ public class BookStoreRunner {
     public static final long waitingTime = 50;
     public static void main(String[] args) {
         //create the inventory, and load the books to it.
-        String inputFile = args[0];
-        BookInventoryInfo[] inventoryInfos=getInventory(inputFile);
-        Inventory inventory=Inventory.getInstance();
-        inventory.load(inventoryInfos);
-        //create the vehicles
-        DeliveryVehicle[] vehicles=getResources(inputFile);
-        ResourcesHolder.getInstance().load(vehicles);
-        Object[] services=getServices(inputFile);
+        LoadInfo(args[0]);
+
+        Object[] services=getServices(args[0]);
 
         Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);
         //the number of microService from each type
@@ -40,31 +33,46 @@ public class BookStoreRunner {
         int resourceNum=(Integer)services[4];
         ServiceInitCheck.SetInitCheck(sellingNum+inventoryNum+logisticsNum+resourceNum+customers.length);
         int[] time=(int[])services[0];
-        ExecutorService e = Executors.newFixedThreadPool
-                (customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum+1);
-        ActivateThreads(e,sellingNum,inventoryNum,logisticsNum,resourceNum,customers);
+        ArrayList<Thread> pool = new ArrayList<>(customers.length+sellingNum+inventoryNum+logisticsNum+resourceNum);
+        CreateThreads(pool,sellingNum,inventoryNum,logisticsNum,resourceNum,customers);
 
         TimeService t=new TimeService("TimeService",time[0],time[1]);
         Thread checkReady = new Thread(new CheckThreadsReady());
+        Activate(pool);
         checkReady.start();
         try {
             checkReady.join();
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
-        e.execute(t);
-        Thread check = new Thread(new FakeJoin());
-        check.start();
-        try {
-            check.join();
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        } catch (InterruptedException e1) { e1.printStackTrace(); }
+        Thread timeThread = new Thread(t);
+        timeThread.start();
+        JoinAll(pool, timeThread);
+        System.out.println("ToTo");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
         CreateOutputs(args,Customers);
     }
+
+    private static void JoinAll(ArrayList<Thread> pool, Thread timeThread) {
+        for(Thread t:pool) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            timeThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Activate(ArrayList<Thread> pool) {
+        for(Thread t: pool)
+            t.start();
+    }
+
     public static class CheckThreadsReady implements Runnable{
         @Override
         public void run() {
@@ -76,7 +84,15 @@ public class BookStoreRunner {
             }
         }
     }
-
+     public static void LoadInfo(String inputFile){
+         //create the inventory, and load the books to it.
+         BookInventoryInfo[] inventoryInfos=getInventory(inputFile);
+         Inventory inventory=Inventory.getInstance();
+         inventory.load(inventoryInfos);
+         //create the vehicles
+         DeliveryVehicle[] vehicles=getResources(inputFile);
+         ResourcesHolder.getInstance().load(vehicles);
+     }
     public static void CreateOutputs(String[] args,Customer[] Customers){
         printCustomers(args[1],Customers);
         Inventory.getInstance().printInventoryToFile(args[2]);
@@ -84,27 +100,27 @@ public class BookStoreRunner {
         printMoneyRegister(args[4]);
     }
 
-    public static void ActivateThreads(ExecutorService e, int sellingNum,int inventoryNum
+    public static void CreateThreads(ArrayList<Thread> pool, int sellingNum,int inventoryNum
             ,int logisticsNum,int resourceNum, Pair<Customer,ArrayList<FutureOrder>>[] customers){
         for (int i=0;i<customers.length;i++){
             APIService a=new APIService(customers[i].getSecond(),customers[i].getFirst(),String.valueOf(i));
-            e.execute(a);
+            pool.add(new Thread(a));
         }
         for(int i=0;i<sellingNum;i++){
             SellingService s=new SellingService(String.valueOf(i));
-            e.execute(s);
+            pool.add(new Thread(s));
         }
         for(int i=0;i<inventoryNum;i++){
             InventoryService in=new InventoryService(String.valueOf(i));
-            e.execute(in);
+            pool.add(new Thread(in));
         }
         for(int i=0;i<resourceNum;i++){
             ResourceService r=new ResourceService(String.valueOf(i));
-            e.execute(r);
+            pool.add(new Thread(r));
         }
         for(int i=0;i<logisticsNum;i++){
             LogisticsService l=new LogisticsService(String.valueOf(i));
-            e.execute(l);
+            pool.add(new Thread(l));
         }
 
     }
@@ -236,16 +252,7 @@ public class BookStoreRunner {
         }
         return arr;
     }
-     protected static class FakeJoin implements Runnable{
 
-        @Override
-        public void run(){
-            while(!ServiceInitCheck.finished())
-                try {
-                    Thread.sleep(waitingTime);
-                }catch (InterruptedException e){e.printStackTrace();}
-        }
-    }
     public static void printMoneyRegister(String filename) {
         try {
             FileOutputStream fileOut =
@@ -260,26 +267,3 @@ public class BookStoreRunner {
     }
 }
 
-/*        Customer[] Customers;
-        JSONArray customersJsonObject = (JSONArray) services.get("customers");
-        Customers = new Customer[customersJsonObject.size()];
-        for (int i = 0; i<Customers.length;i++){
-            JSONObject curr= (JSONObject)customersJsonObject.get(i);
-            int id = (Integer) curr.get("id");
-            String name = (String) curr.get("name");
-            String address = (String) curr.get("address");
-            int distance = (Integer) curr.get("distance");
-            JSONObject creditCard = (JSONObject) curr.get("creditCard");
-            int creditCardNum = (Integer)creditCard.get("number");
-            int creditCardAmount = (Integer)creditCard.get("amount");
-            JSONArray ordersArr = (JSONArray)curr.get("orderSchedule");
-            Object[] orders = new Object[ordersArr.size()];
-            for(int j = 0; j<orders.length;j++){
-                JSONObject order = (JSONObject) ordersArr.get(i);
-                String bookTitle = (String)order.get("bookTitle");
-                Integer tick = (Integer)order.get("tick");
-                orders[j] = new Object[]{bookTitle, tick};
-            }
-        }
-        return Customers;
-        */

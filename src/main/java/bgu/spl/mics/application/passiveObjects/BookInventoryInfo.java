@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import org.json.simple.JSONObject;
-
 import java.io.Serializable;
 
 /**
@@ -10,7 +8,7 @@ import java.io.Serializable;
  * <p>
  * You may add fields and methods to this class as you see fit (including public methods).
  */
-public class BookInventoryInfo {
+public class BookInventoryInfo implements Serializable {
     private String title;
     private int amount;
     private int price;

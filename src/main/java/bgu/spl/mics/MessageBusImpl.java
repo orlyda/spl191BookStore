@@ -82,31 +82,29 @@ public class MessageBusImpl implements MessageBus {
     }
 
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e){
-		if(EventMap.containsKey(e.getClass())) {
-           if(EventMap.get(e.getClass()).isEmpty())
-               return null;
-           else {
-               synchronized (e){
-               BlockingQueue<MicroService> queue = EventMap.get(e.getClass());
-               MicroService m = queue.poll();
-               try {
-                   ServiceMap.get(m).put(e);
-               } catch (InterruptedException e1) {
-                   e1.printStackTrace();
-               }
-               queue.add(m);
-
-                   Future<T> f = new Future<>();
-                   FutureMap.put(e, f);
-                   return f;
-               }
-           }
+    public <T> Future<T> sendEvent(Event<T> e){
+        if(EventMap.containsKey(e.getClass())) {
+            synchronized (e){
+            if(EventMap.get(e.getClass()).isEmpty())//No MicroServices Registerd
+                return null;
+            else {
+                    BlockingQueue<MicroService> queue = EventMap.get(e.getClass());
+                    MicroService m = queue.poll();
+                    try {
+                        ServiceMap.get(m).put(e);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    queue.add(m);
+                    Future<T> f = new Future<>();
+                    FutureMap.put(e, f);
+                    return f;
+                }
+            }
         }
-
-		else
-		    return null;
-	}
+        else//No Registered Events
+            return null;
+    }
 
 	@Override
 	public void register(MicroService m) {

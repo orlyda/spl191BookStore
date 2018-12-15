@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SellingService extends MicroService{
 
 	private AtomicReference<MoneyRegister> mr;
-	public static final long waitingTime = 50;
+	public static final long waitingTime = 20;
 
 	private int currentTick;//use to create order receipt
 
@@ -51,8 +51,8 @@ public class SellingService extends MicroService{
 			synchronized (futureStatus) {
 				while (!futureStatus.isDone()) {
 					try {
-						System.out.println("Hello1");
 						futureStatus.wait(waitingTime);
+						System.out.println("Hello");
 					} catch (InterruptedException e) {}
 				}
 			}
