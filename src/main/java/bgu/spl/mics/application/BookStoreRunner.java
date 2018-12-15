@@ -20,6 +20,7 @@ public class BookStoreRunner {
 
     public static final long waitingTime = 50;
     public static void main(String[] args) {
+        System.out.println("Fish And Chips");
         //create the inventory, and load the books to it.
         LoadInfo(args[0]);
 
