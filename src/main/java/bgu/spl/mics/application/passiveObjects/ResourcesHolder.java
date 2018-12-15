@@ -39,7 +39,7 @@ public class ResourcesHolder {
      * 			{@link DeliveryVehicle} when completed.   
      */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		Future<DeliveryVehicle> f = new Future();
+		Future<DeliveryVehicle> f = new Future<>();
 		Thread take = new Thread(new takeThread(f));
 		take.run();
 		return f;
@@ -81,7 +81,7 @@ public class ResourcesHolder {
 	}
 
 	private class takeThread implements Runnable {
-		private Future f;
+		private Future<DeliveryVehicle> f;
 		public takeThread(Future f){
 			this.f=f;
 		}
@@ -95,9 +95,9 @@ public class ResourcesHolder {
 			synchronized (ResourcesHolder.getInstance()){
 				while (!found){
 					if(!acquired[i].get()){
-						acquired[i].set(true);
-						found=true;
 						f.resolve(vehicles.get(i));
+						found=true;
+						acquired[i].set(true);
 					}
 					i++;
 				}

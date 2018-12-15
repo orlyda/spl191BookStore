@@ -28,6 +28,11 @@ public class LogisticsService extends MicroService {
 	protected void initialize(){
 		Callback<DeliveryEvent> DeliveryCallback = c -> {
 			Future<Future<DeliveryVehicle>> fd = sendEvent(new GetCarEvent());
+			while(!fd.get().isDone()) {
+				try {
+					Thread.sleep(waitingTime);
+				} catch (InterruptedException e) { e.printStackTrace(); }
+			}
 			Future<DeliveryVehicle>f=fd.get();
 			complete(c,null);
 			while (!f.isDone()) {

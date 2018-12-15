@@ -46,7 +46,6 @@ public class BookStoreRunner {
         Thread timeThread = new Thread(t);
         timeThread.start();
         JoinAll(pool, timeThread);
-        System.out.println("ToTo");
         Customer[] Customers = new Customer[customers.length];
         for(int i=0;i<customers.length;i++)
             Customers[i]= customers[i].getFirst();
