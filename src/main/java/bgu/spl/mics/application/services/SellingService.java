@@ -55,9 +55,7 @@ public class SellingService extends MicroService{
 						receipt.setPrice(futureStatus.get());
 						receipt.setIssuedTick(currentTick);
 						mr.get().file(receipt);
-					}
-
-				}
+					} }
 				fr.resolve(receipt);
 			}
 		};
