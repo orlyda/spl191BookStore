@@ -21,7 +21,7 @@ public class BookStoreRunner {
     public static final long waitingTime = 50;
     public static void main(String[] args) {
       //  System.out.println("Fish And Chips");
-        //create the inventory, and load the books to it.
+        //create the inventory,and resource service.
         LoadInfo(args[0]);
         Object[] services=getServices(args[0]);
         Pair<Customer,ArrayList<FutureOrder>>[] customers=getCustomers((JSONArray) services[5]);

@@ -75,7 +75,7 @@ public class APIService extends MicroService{
 
 		ExecutorService e=Executors.newFixedThreadPool(futureOrders.size());
 		CompletionService<OrderReceipt> cService=new ExecutorCompletionService<>(e);
-		int j =0;
+		Integer j = 0;
 		synchronized (futureOrders){//take order from the list in the correct tick
 			// and send event that handle the order
 			while((!futureOrders.isEmpty()) && futureOrders.get(0).getTick()==tick) {
@@ -88,7 +88,6 @@ public class APIService extends MicroService{
 						while (!f.isDone()) {
 							try {//wait until the order process is completed
 								wait(waitingTime);
-								//System.out.println("hello2");
 							} catch (InterruptedException e1) {
 								e1.printStackTrace();
 							}

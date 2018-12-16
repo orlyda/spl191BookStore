@@ -1,9 +1,9 @@
 package bgu.spl.mics;
 
-import java.util.HashMap;
+import bgu.spl.mics.application.messages.TickBroadcast;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,12 +51,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeBroadcast(Class <? extends Broadcast> type, MicroService m) {
-	    if(!BroadcastMap.containsKey(type))
-	        BroadcastMap.put(type,new CopyOnWriteArrayList<>());
-        if(!BroadcastMap.get(type).contains(m)) {
-            BroadSubscribe.get(m).add(type);
-			BroadcastMap.get(type).add(m);
-		}
+	    synchronized (type){
+	    if(!BroadcastMap.containsKey(type)) {
+            BroadcastMap.put(type, new CopyOnWriteArrayList<>());
+        }
+
+        BroadSubscribe.get(m).add(type);
+        BroadcastMap.get(type).add(m);
+	    }
 	}
 
 	@Override
